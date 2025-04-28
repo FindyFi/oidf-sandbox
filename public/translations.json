@@ -1,0 +1,71 @@
+{
+    "OpenID Federation Admin UI": {
+        "fi": "Luottamusrekisterin hallintakäyttöliittymä"
+    },
+    "Authenticate": {
+        "fi": "Kirjaudu"
+    },
+    "Subordinates": {
+        "fi": "Verkoston jäsenet"
+    },
+    "Add subordinate": {
+        "fi": "Lisää jäsen"
+    },
+    "Identifier": {
+        "fi": "Tunniste"
+    },
+    "Name": {
+        "fi": "Nimi"
+    },
+    "Logo URI": {
+        "fi": "Logon osoite"
+    },
+    "Homepage": {
+        "fi": "Kotisivu"
+    },
+    "Contacts": {
+        "fi": "Yhteystiedot"
+    },
+    "Policy URI": {
+        "fi": "Sääntökirjan osoite"
+    },
+    "Role": {
+        "fi": "Rooli"
+    },
+    "Issuer": {
+        "fi": "Todisteiden myöntäjä"
+    },
+    "Verifier": {
+        "fi": "Todisteiden vastaanottaja"
+    },
+    "OP": {
+        "fi": "OpenID-tunnistustarjoaja"
+    },
+    "RP": {
+        "fi": "OpenID-tunnistukseen luottava"
+    },
+    "Client": {
+        "fi": "OpenID-asiakasohjelmisto"
+    },
+    "Resource": {
+        "fi": "OpenID-suojattu resurssi"
+    },
+    "Authorization Server": {
+        "fi": "OpenID-tunnistuspalvelin"
+    },
+    "Add": {
+        "fi": "Lisää"
+    },
+    "Edit": {
+        "fi": "Muokkaa"
+    },
+    "✎": {
+        "fi": "✎"
+    },
+    "Delete": {
+        "fi": "Poista"
+    },
+    "❌": {
+        "fi": "❌"
+    }
+}

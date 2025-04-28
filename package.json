@@ -1,0 +1,16 @@
+{
+  "name": "openid-federation-client",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Samuel Rinnetmäki <samuel@iki.fi>",
+  "license": "ISC",
+  "description": "A simple user interface for administrating an OpenID Federation server",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,44 @@
+:root {
+  --color-primary: #003580;
+  --color-light: #4ffaff;
+  --color-text: #003580;
+  --color-background: #FFFFFF;
+}
+.language-switcher ul {
+  background-color: var(--color-light);
+  border-color: var(--color-light);
+  border-radius: 2em;
+  border-style: outset;
+  border-width: 2px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-around;
+  gap: 0.5em;
+  height: 2.2em;
+  margin: 0 0 0 auto;
+  padding: 0;
+  width: 5em;
+}
+.language-switcher li {
+  background-color: #FFF;
+  border-color: var(--color-light);
+  border-radius: 2em;
+  border-style: outset;
+  border-width: 2px;
+  box-sizing: border-box;
+  color: #0d0342;
+  list-style-type: none;
+  margin: 0em;
+  min-height: 2em;
+  min-width: 2em;
+  padding: 0.25em 0 0 0;
+  text-align: center;
+  width: 2em;
+}
+.language-switcher li.selected {
+  background-color: var(--color-text);
+  border-color: var(--color-light);
+  border-style: inset;
+  color: #FFF;
+  padding: 0.3em 0 0 0.05em;
+}

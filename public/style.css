@@ -1,0 +1,87 @@
+html {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: Lato,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+  margin: 0;
+  padding: 0;
+}
+header {
+  background-color: #003580;
+  color: #FFF;
+  display: flex;
+  margin: 0;
+  padding: 0.5em 2em 0 2em;
+  height: 4em;
+  overflow: hidden;
+}
+#content {
+  margin: 0 2em;
+}
+fieldset, legend {
+  border: 2px outset #999;
+  border-radius: 0.5em;
+}
+fieldset {
+  margin: 1em;
+  padding: 1em;
+}
+legend {
+  padding: 0.25em 0.5em;
+}
+label, span.label {
+  display: inline-block;
+  min-width: 8em;
+}
+label.inline {
+  display: inline-block;
+  min-width: auto;
+}
+textarea {
+  font-family: Consolas, 'Courier New', Courier, monospace;
+  font-size: small
+}
+table {
+  margin: 1em 2em;
+}
+caption {
+  font-size: larger;
+  font-weight: bold;
+}
+th {
+  text-align: left;
+}
+td.id {
+  font-size: small;
+  text-align: center;
+}
+td.identifier {
+  font-size: x-small;
+  height: 1em;
+  max-width: 60em;
+  overflow: scroll;
+  text-wrap: nowrap;
+}
+td.modify, td.delete {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+#add {
+  height: 3em;
+  overflow: hidden;
+}
+#add fieldset {
+  border-width: 0;
+}
+#add.shown {
+  height: auto;
+}
+#add.shown fieldset {
+  border-width: 2px;
+}
+#add p {
+  margin: 0;
+  padding: 0 0.5em 0.25em 0.5em;
+}
