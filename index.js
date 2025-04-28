@@ -7,6 +7,8 @@ const clientId = process.env.CLIENT_ID
 const clientSecret = process.env.CLIENT_SECRET
 const port = process.env.PORT || 3000
 
+console.log(process.env)
+
 const metadataMap = {
   openid_provider: 'openid-configuration',
 }
