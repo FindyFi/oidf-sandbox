@@ -49,7 +49,8 @@ server {
     location / {
         proxy_set_header Host \$host;
         proxy_set_header X-Forwarded-For \$remote_addr;
-        proxy_pass https://localhost:${NODE_PORT};
+        proxy_pass http://localhost:${NODE_PORT};
+        proxy_ssl_server_name on;
     }
 }
 EOF
@@ -61,4 +62,19 @@ rm ${HOSTNAME}.conf
 
 ssh $ADMIN_USERNAME@$VM_IP "sudo systemctl reload nginx"
 ssh $ADMIN_USERNAME@$VM_IP "sudo certbot run -m "admin@findy.fi" -d $HOSTNAME"
+
+ssh $ADMIN_USERNAME@$VM_IP "mkdir -p github && cd github && git clone 'https://github.com/FindyFi/oidf-sandbox.git'"
+
+source env.sh # sets API_UR, AUTH_URL, CLIENT_ID, and CLIENT_SECRET
+ssh $ADMIN_USERNAME@$VM_IP "export API_URL='${API_URL}'"
+ssh $ADMIN_USERNAME@$VM_IP "export AUTH_URL='${AUTH_URL}'"
+ssh $ADMIN_USERNAME@$VM_IP "export CLIENT_ID='${CLIENT_ID}'"
+ssh $ADMIN_USERNAME@$VM_IP "export CLIENT_SECRET='${CLIENT_SECRET}'"
+
+ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && npm install && pm2 start --name '${HOSTNAME}' index.js && pm2 save"
+
+ssh $ADMIN_USERNAME@$VM_IP "pm2 logs"
+
+ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && git stash && git pull && npm update && pm2 restart 0"
+
 ```
