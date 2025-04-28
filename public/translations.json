@@ -1,6 +1,6 @@
 {
-    "OpenID Federation Admin UI": {
-        "fi": "Luottamusrekisterin hallintakäyttöliittymä"
+    "OpenID Federation Sandbox/Playground": {
+        "fi": "Luottamusrekisterin kokeilukäyttöliittymä"
     },
     "Authenticate": {
         "fi": "Kirjaudu"
@@ -31,6 +31,12 @@
     },
     "Role": {
         "fi": "Rooli"
+    },
+    "Keys": {
+        "fi": "Avaimet"
+    },
+    "Metadata": {
+        "fi": "Metatiedot"
     },
     "Issuer": {
         "fi": "Todisteiden myöntäjä"
