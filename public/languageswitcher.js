@@ -145,7 +145,7 @@ class LanguageSwitcher extends HTMLElement {
       key = elem.label || elem.textContent
     }
     if (this.translations[key] == undefined) {
-      console.warn('No translations for ', key, elem)
+      console.warn('No translations for ', key)
       elem.removeAttribute('lang') // not translated
     }
     else {
