@@ -92,6 +92,12 @@ app.get('/api/getMetadata/:metadataKey/:identifier', async (req, res) => {
   const resp = await fetch(actorMetadata)
   let metadata = {}
   if (resp.ok) {
+    try {
+      metadata = await resp.json()
+    }
+    catch (e) {
+      console.warn('Error parsing JSON', e, req.params)
+    }
     res.json(await resp.json())
   }
 })
