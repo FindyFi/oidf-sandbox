@@ -23,84 +23,121 @@ app.use(express.json())
 app.use(express.static('public'))
 
 app.get('/api/subordinates', async (req, res) => {
-  res.json(await oidf.getSubordinates())
+  try {
+    res.json(await oidf.getSubordinates())
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
+  }
 })
 
 app.get('/api/subordinates/:id', async (req, res) => {
-  res.json(await oidf.getSubordinateMetadata(req.params.id))
+  try {
+    res.json(await oidf.getSubordinateMetadata(req.params.id))
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
+  }
 })
 
 app.post('/api/subordinates', async (req, res) => {
-  const json = req.body
-  console.log(json)
-  const results = {}
-  const sub = await oidf.addSubordinate(json.identifier)
-  results['New subordinate'] = sub
-  for (const key in json.metadata) {
-    let entry = {
-      key: key,
-      metadata: json.metadata[key]
+  try {
+    const json = req.body
+    console.log('adding a subordinate', JSON.stringify(json, null, 1))
+    const results = {}
+    const sub = await oidf.addSubordinate(json.identifier)
+    results['New subordinate'] = sub
+    for (const key in json.metadata) {
+      let entry = {
+        key: key,
+        metadata: json.metadata[key]
+      }
+      const meta = await oidf.addSubordinateMetadata(sub.id, entry)
+      results[`New subordinate metadata ${key}`] = meta
     }
-    const meta = await oidf.addSubordinateMetadata(sub.id, entry)
-    results[`New subordinate metadata ${entry}`] = meta
-  }
-  for (const key in json.jwks) {
-    let entry = {
-      key: key,
-      metadata: json.jwks[key]
+    for (const key in json.jwks) {
+      let entry = {
+        key: key,
+        metadata: json.jwks[key]
+      }
+      const jwks = await oidf.addSubordinateJWKS(sub.id, entry)
+      results[`New subordinate JWKS ${key}`] = jwks
     }
-    const meta = await oidf.addSubordinateMetadata(sub.id, entry)
-    results[`New subordinate metadata ${entry}`] = meta
+    console.log('Subordinate metadata:', JSON.stringify(results, null, 1))
+    results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(sub.id)
+    res.json(results)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
   }
-  results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(sub.id)
-  res.json(results)
 })
 
 app.put('/api/subordinates/:id', async (req, res) => {
-  const subId = req.params.id
-  const json = req.body
-  const results = {}
-  const delResp = await deleteMetadata(oidf, subId)
-  results['Deleted subordinate metadata'] = delResp
-  const addResp = addMetadata(oidf, subId, json.metadata)
-  results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
-  results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(subId)
-  res.json(results)
+  try {
+    const subId = req.params.id
+    const json = req.body
+    const results = {}
+    const delResp = await deleteMetadata(oidf, subId)
+    results['Deleted subordinate metadata'] = delResp
+    const addResp = addMetadata(oidf, subId, json.metadata)
+    results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
+    results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(subId)
+    res.json(results)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
+  }
 })
 
 app.delete('/api/subordinates/:id', async (req, res) => {
   console.log('DELETING', req.params.id)
-  res.json(await oidf.deleteSubordinate(req.params.id))
+  try {
+    res.json(await oidf.deleteSubordinate(req.params.id))
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
+  }
 })
 
 app.get('/api/proxy/:uri', async (req, res) => {
-  const resp = await fetch(req.params.uri)
-  if (resp.ok) {
-    if (resp.headers['Content-Type'] == 'application/json') {
-      res.json(await resp.json())
-      return
+  try {
+    const resp = await fetch(req.params.uri)
+    if (resp.ok) {
+      if (resp.headers['Content-Type'] == 'application/json') {
+        res.json(await resp.json())
+        return
+      }
+      else {
+        res.send(await resp.text())
+        return
+      }
     }
-    else {
-      res.send(await resp.text())
-      return
-    }
+    res.json({error: `Could not get ${req.params.uri}`})
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
   }
-  res.json({error: `Could not get ${req.params.uri}`})
 })
 
 app.get('/api/getMetadata/:metadataKey/:identifier', async (req, res) => {
-  const {identifier, metadataKey} = req.params
-  const actorMetadata = `${identifier}/.well-known/${metadataMap[metadataKey]}`
-  const resp = await fetch(actorMetadata)
-  let metadata = {}
-  if (resp.ok) {
-    try {
-      metadata = await resp.json()
+  try {
+    const {identifier, metadataKey} = req.params
+    const actorMetadata = `${identifier}/.well-known/${metadataMap[metadataKey]}`
+    console.log('Fetching metadata from', actorMetadata)
+    const resp = await fetch(actorMetadata)
+    let metadata = {}
+    if (resp.ok) {
+      try {
+        metadata = await resp.json()
+      }
+      catch (e) {
+        console.warn('Error parsing JSON', e, req.params)
+      }
+      res.json(metadata)
     }
-    catch (e) {
-      console.warn('Error parsing JSON', e, req.params)
-    }
-    res.json(await resp.json())
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
   }
 })
 
