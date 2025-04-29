@@ -62,6 +62,9 @@
     "Add": {
         "fi": "Lisää"
     },
+    "fetch": {
+        "fi": "hae"
+    },
     "Edit": {
         "fi": "Muokkaa"
     },
@@ -70,6 +73,12 @@
     },
     "Delete": {
         "fi": "Poista"
+    },
+    "Cancel": {
+        "fi": "Peru"
+    },
+    "Statement": {
+        "fi": "Statement"
     },
     "❌": {
         "fi": "❌"
