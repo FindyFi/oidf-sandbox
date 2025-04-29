@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
  <head>
   <meta charset="UTF-8">
@@ -116,7 +117,6 @@
         }
       } else {
         deleteMetadata(this.value)
-        // const metadata = JSON.parse(addForm.metadata.value)
       }
     }
   }
@@ -135,7 +135,6 @@
       addForm.metadata.value = '{}\n'
     }
     const currentMetadata = JSON.parse(addForm.metadata.value)
-    // console.log(key, value)
     currentMetadata[key] = value
     addForm.metadata.value = JSON.stringify(currentMetadata, null, 2) + '\n'
   }
@@ -217,11 +216,13 @@
    <caption lang="en">Subordinates</caption>
    <thead>
     <tr>
-    <th>#</th>
-    <th lang="en">Identifier</th>
-    <th lang="en">Statement</th>
-    <th lang="en">Edit</th>
-    <th lang="en">Delete</th>
+    <th role="columnheader">#</th>
+    <th role="columnheader" lang="en" title="Ogranization name in the OpenID Federation Entity Configuration metadata">Name</th>
+    <th role="columnheader" lang="en" title="URL identifying the entity in the federation">Identifier</th>
+    <th role="columnheader" lang="en" title="Entity Configuration published by the entity">Config</th>
+    <th role="columnheader" lang="en" title="Entity Statement published by superior (this service)">Statement</th>
+    <th role="columnheader" lang="en">Edit</th>
+    <th role="columnheader" lang="en">Delete</th>
     </tr>
    </thead>
    <tbody id="list">
@@ -236,32 +237,49 @@
      .then(json => {
         console.log(json)
         list.innerHTML = ''
+        let counter = 0
         json.forEach(subordinate => {
           const tr = document.createElement('tr')
+          list.appendChild(tr)
           const id = document.createElement('td')
           id.className = 'id'
-          id.textContent = subordinate.id
+          id.title = subordinate.id
+          id.textContent = ++counter
           tr.appendChild(id)
+          const n = document.createElement('td')
+          n.className = 'name'
+          n.textContent = subordinate?.metadata?.federation_entity?.organization_name || ''
+          tr.appendChild(n)
           const td = document.createElement('td')
+          tr.appendChild(td)
           td.className = 'identifier'
           let a = document.createElement('a')
-          a.href = subordinate.identifier + '/.well-known/openid-federation'
+          a.href = subordinate.identifier
           a.textContent = subordinate.identifier
-          // a.download = `${subordinate.identifier}.jwt`
           td.appendChild(a)
-          tr.appendChild(td)
+          const conf = document.createElement('td')
+          tr.appendChild(conf)
+          conf.className = 'config'
+          let a2 = document.createElement('a')
+          a2.href = subordinate.identifier + '/.well-known/openid-federation'
+          a2.lang = 'en'
+          a2.textContent = 'get'
+          a2.download = `${subordinate.identifier}.jwt`
+          conf.appendChild(a2)
           const stmt = document.createElement('td')
-          td.className = 'statement'
+          tr.appendChild(stmt)
+          stmt.className = 'statement'
           a = document.createElement('a')
           a.href = `${fetchEndpoint}?sub=${encodeURIComponent(subordinate.identifier)}`
           a.textContent = 'fetch'
+          a.lang = 'en'
           stmt.appendChild(a)
-          tr.appendChild(stmt)
           const mod = document.createElement('td')
+          tr.appendChild(mod)
           mod.className = 'modify'
           a = document.createElement('a')
           a.textContent = '✎'
-          // a.lang = 'en'
+          a.lang = 'en'
           a.title = 'Edit'
           a.onclick = async function(e) {
            e.preventDefault()
@@ -269,29 +287,17 @@
            addForm.classList.add('shown')
            hiddenId.value = subordinate.id
            identifier.value = subordinate.identifier
-           const resp = await fetch(`./api/subordinates/${subordinate.id}`)
-           if (resp.ok) {
-            const json = await resp.json()
-            console.log(json)
-            for (const entry of json) {
-             console.log(entry)
-             for (const box of boxes) {
-              box.checked = entry.key === box.value
-              setMetadata(entry.key, entry.metadata)
-             }
-             if (entry.key == 'federation_entity') {
-              orgName.value = entry.metadata.organization_name
-              logo.value = entry.metadata.logo_uri
-              homepage.value = entry.metadata.homepage_uri
-              contact.value = entry.metadata.contacts.join(', ')
-              policy.value = entry.metadata.policy_uri
-             }
-            }
-           }
+           orgName.value = subordinate?.metadata?.federation_entity?.organization_name || ''
+           logo.value = subordinate?.metadata?.federation_entity?.logo_uri || ''
+           homepage.value = subordinate?.metadata?.federation_entity?.homepage_uri || ''
+           contact.value = subordinate?.metadata?.federation_entity?.contacts?.join(', ') || ''
+           policy.value = subordinate?.metadata?.federation_entity?.policy_uri  || ''
+           updateJWKS(subordinate.jwks)
+           addForm.metadata.value = JSON.stringify(subordinate.metadata, null, 2) + '\n'
           }
           mod.appendChild(a)
-          tr.appendChild(mod)
           const del = document.createElement('td')
+          tr.appendChild(del)
           del.className = 'delete'
           a = document.createElement('a')
           a.lang = 'en'
@@ -311,8 +317,6 @@
               })
           }
           del.appendChild(a)
-          tr.appendChild(del)
-          list.appendChild(tr)
         })
       })
    }

@@ -24,7 +24,20 @@ app.use(express.static('public'))
 
 app.get('/api/subordinates', async (req, res) => {
   try {
-    res.json(await oidf.getSubordinates())
+    const results = await oidf.getSubordinates()
+    for (const sub of results) {
+      const metadata = await oidf.getSubordinateMetadata(sub.id)
+      sub.metadata = {}
+      for (const entry of metadata) {
+        sub.metadata[entry.key] = entry.metadata
+      }
+      const jwks = await oidf.getSubordinateJWKS(sub.id)
+      sub.jwks = []
+      for (const entry of jwks) {
+        sub.jwks.push(entry.key)
+      }
+    }
+    res.json(results)
   } catch (e) {
     console.error(e)
     res.status(500).json(e)
