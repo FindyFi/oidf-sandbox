@@ -70,6 +70,6 @@ ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && npm install && source env.
 
 ssh $ADMIN_USERNAME@$VM_IP "pm2 logs"
 
-ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && git stash && git pull && source env.sh && npm update && pm2 restart 0 --update-env"
+ssh $ADMIN_USERNAME@$HOSTNAME "cd github/oidf-sandbox && git stash && git pull && source env.sh && npm update && pm2 restart 0 --update-env"
 
 ```
