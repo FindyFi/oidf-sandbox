@@ -65,16 +65,11 @@ ssh $ADMIN_USERNAME@$VM_IP "sudo certbot run -m "admin@findy.fi" -d $HOSTNAME"
 
 ssh $ADMIN_USERNAME@$VM_IP "mkdir -p github && cd github && git clone 'https://github.com/FindyFi/oidf-sandbox.git'"
 
-source env.sh # sets API_UR, AUTH_URL, CLIENT_ID, and CLIENT_SECRET
-ssh $ADMIN_USERNAME@$VM_IP "export API_URL='${API_URL}'"
-ssh $ADMIN_USERNAME@$VM_IP "export AUTH_URL='${AUTH_URL}'"
-ssh $ADMIN_USERNAME@$VM_IP "export CLIENT_ID='${CLIENT_ID}'"
-ssh $ADMIN_USERNAME@$VM_IP "export CLIENT_SECRET='${CLIENT_SECRET}'"
-
-ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && npm install && pm2 start --name '${HOSTNAME}' index.js && pm2 save"
+scp env.sh ${ADMIN_USERNAME}@{$VM_IP}:github/oidf-sandbox
+ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && npm install && source env.sh && pm2 start --name ${HOSTNAME} index.js && pm2 save"
 
 ssh $ADMIN_USERNAME@$VM_IP "pm2 logs"
 
-ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && git stash && git pull && npm update && pm2 restart 0"
+ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && git stash && git pull && source env.sh && npm update && pm2 restart 0 --update-env"
 
 ```
