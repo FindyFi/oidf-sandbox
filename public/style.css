@@ -28,6 +28,7 @@ fieldset {
   padding: 1em;
 }
 legend {
+  background-color: #FFF;
   padding: 0.25em 0.5em;
 }
 label, span.label {
@@ -43,13 +44,20 @@ textarea {
   font-size: small
 }
 table {
+  border-collapse: collapse;
   margin: 1em 2em;
 }
 caption {
   font-size: larger;
   font-weight: bold;
+  text-align: left;
+}
+th, td {
+  border: 1px solid #999;
+  padding: 0.25em 0.5em;
 }
 th {
+  background-color: #EEE;
   text-align: left;
 }
 td.id {
@@ -57,16 +65,26 @@ td.id {
   text-align: center;
 }
 td.identifier {
-  font-size: x-small;
+  font-size: small;
   height: 1em;
   max-width: 60em;
   overflow: scroll;
   text-wrap: nowrap;
 }
+td.config, td.statement {
+  text-align: center;
+}
 td.modify, td.delete {
   color: red;
   font-weight: bold;
   text-align: center;
+}
+td a {
+  color: inherit;
+  text-decoration: none;
+}
+td a:hover {
+  text-decoration: underline;
 }
 #add {
   height: 3em;
@@ -77,9 +95,13 @@ td.modify, td.delete {
 }
 #add.shown {
   height: auto;
+  width: auto;
 }
 #add.shown fieldset {
   border-width: 2px;
+  box-shadow: -0.25em 0.5em 1em #999;
+  margin: 1em 2em 2em 3em;
+  width: 62em
 }
 #add p {
   margin: 0;
