@@ -62,23 +62,29 @@
     "Add": {
         "fi": "Lisää"
     },
-    "fetch": {
-        "fi": "hae"
-    },
     "Edit": {
         "fi": "Muokkaa"
+    },
+    "Cancel": {
+        "fi": "Peru"
+    },
+    "Config": {
+        "fi": "Oma määritys"
+    },
+    "Statement": {
+        "fi": "Hallintoelimen määritys"
+    },
+    "get": {
+        "fi": "näytä"
+    },
+    "fetch": {
+        "fi": "hae"
     },
     "✎": {
         "fi": "✎"
     },
     "Delete": {
         "fi": "Poista"
-    },
-    "Cancel": {
-        "fi": "Peru"
-    },
-    "Statement": {
-        "fi": "Statement"
     },
     "❌": {
         "fi": "❌"
