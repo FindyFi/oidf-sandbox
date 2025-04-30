@@ -260,12 +260,11 @@
           const conf = document.createElement('td')
           tr.appendChild(conf)
           conf.className = 'config'
-          let a2 = document.createElement('a')
-          a2.href = subordinate.identifier + '/.well-known/openid-federation'
-          a2.lang = 'en'
-          a2.textContent = 'get'
-          a2.download = `${subordinate.identifier}.jwt`
-          conf.appendChild(a2)
+          a = document.createElement('a')
+          a.href = subordinate.identifier + '/.well-known/openid-federation'
+          a.lang = 'en'
+          a.textContent = 'get'
+          conf.appendChild(a)
           const stmt = document.createElement('td')
           tr.appendChild(stmt)
           stmt.className = 'statement'
