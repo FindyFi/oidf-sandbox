@@ -7,14 +7,6 @@ const clientId = process.env.CLIENT_ID
 const clientSecret = process.env.CLIENT_SECRET
 const port = process.env.PORT || 3000
 
-console.log(process.env)
-
-const metadataMap = {
-  openid_provider: 'openid-configuration',
-}
-metadataMap['openid-credential-issuer'] = 'openid-credential-issuer'
-metadataMap['openid-credential-verifier'] = 'openid-credential-verifier'
-
 const oidf = new Admin(apiUrl)
 const apiKey = await oidf.authenticate(authUrl, clientId, clientSecret)
 
@@ -46,7 +38,7 @@ app.get('/api/subordinates', async (req, res) => {
 
 app.get('/api/subordinates/:id', async (req, res) => {
   try {
-    res.json(await oidf.getSubordinateMetadata(req.params.id))
+    res.json(await oidf.getSubordinateStatement(req.params.id))
   } catch (e) {
     console.error(e)
     res.status(500).json(e)
@@ -60,20 +52,18 @@ app.post('/api/subordinates', async (req, res) => {
     const results = {}
     const sub = await oidf.addSubordinate(json.identifier)
     results['New subordinate'] = sub
-    for (const key in json.metadata) {
+    if (json.roles) {
       let entry = {
-        key: key,
-        metadata: json.metadata[key]
+        key: 'roles',
+        metadata: json.roles
       }
       const meta = await oidf.addSubordinateMetadata(sub.id, entry)
-      results[`New subordinate metadata ${key}`] = meta
+      results[`Subordinate roles set to metadata:`] = meta
     }
-    for (const key in json.jwks) {
-      let entry = {
-        key: key,
-        metadata: json.jwks[key]
-      }
-      const jwks = await oidf.addSubordinateJWKS(sub.id, entry)
+    const addResp = addMetadata(oidf, sub.id, json.metadata)
+    results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
+    for (const key of json.jwks) {
+      const jwks = await oidf.addSubordinateJWKS(sub.id, key)
       results[`New subordinate JWKS ${key}`] = jwks
     }
     console.log('Subordinate metadata:', JSON.stringify(results, null, 1))
@@ -89,9 +79,24 @@ app.put('/api/subordinates/:id', async (req, res) => {
   try {
     const subId = req.params.id
     const json = req.body
+    console.log(`mofidying the subordinate ${subId}`, JSON.stringify(json, null, 1))
     const results = {}
     const delResp = await deleteMetadata(oidf, subId)
     results['Deleted subordinate metadata'] = delResp
+    const delKeyResp = await deleteKeys(oidf, subId)
+    results['Deleted subordinate keys'] = delResp
+    for (const key of json.jwks) {
+      const jwks = await oidf.addSubordinateJWKS(subId, key)
+      results[`New subordinate JWKS ${key}`] = jwks
+    }
+    if (json.roles) {
+      let entry = {
+        key: 'roles',
+        metadata: json.roles
+      }
+      const meta = await oidf.addSubordinateMetadata(subId, entry)
+      results[`Subordinate roles set to metadata:`] = meta
+    }
     const addResp = addMetadata(oidf, subId, json.metadata)
     results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
     results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(subId)
@@ -133,9 +138,10 @@ app.get('/api/proxy/:uri', async (req, res) => {
 })
 
 app.get('/api/getMetadata/:metadataKey/:identifier', async (req, res) => {
+  console.log(req.params)
   try {
     const {identifier, metadataKey} = req.params
-    const actorMetadata = `${identifier}/.well-known/${metadataMap[metadataKey]}`
+    const actorMetadata = `${identifier}/.well-known/${metadataKey}`
     console.log('Fetching metadata from', actorMetadata)
     const resp = await fetch(actorMetadata)
     let metadata = {}
@@ -176,6 +182,15 @@ async function deleteMetadata(oidf, subId) {
   const metadata = await oidf.getSubordinateMetadata(subId)
   for (const md of metadata) {
     results[md.key] = await oidf.deleteSubordinateMetadataEntry(subId, md.id)
+  }
+  return results
+}
+
+async function deleteKeys(oidf, subId) {
+  const results = {}
+  const keys = await oidf.getSubordinateJWKS(subId)
+  for (const key of keys) {
+    results[key.id] = await oidf.deleteSubordinateJWKS(subId, key.id)
   }
   return results
 }
