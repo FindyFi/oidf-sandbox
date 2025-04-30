@@ -155,6 +155,12 @@ class LanguageSwitcher extends HTMLElement {
           continue
         }
         const copy = elem.cloneNode()
+        if (copy.id) {
+          copy.id = `${copy.id}-${lang}`
+          while (document.getElementById(copy.id)) {
+            copy.id = `${copy.id}-${lang}-${self?.crypto?.randomUUID() || Math.floor(Math.random() * 1000)}`
+          }
+        }
         for (const listener of this.listeners) {
           if (elem[`on${listener}`]) copy[`on${listener}`] = elem[`on${listener}`]
         }
