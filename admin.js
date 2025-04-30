@@ -295,7 +295,7 @@ class OpenIDFederationAPIAdmin {
   }
 
   async deleteSubordinateJWKS(subordinateId, jwkId, username=null) {
-    return this.delete(`/subordinates/${encodeURIComponent(subordinateId)}/jwks/${encodeURIComponent(jwkId)}`, username)
+    return this.delete(`/subordinates/${encodeURIComponent(subordinateId)}/keys/${encodeURIComponent(jwkId)}`, username)
   }
 
   async getSubordinateStatement(subordinateId, username=null) {
