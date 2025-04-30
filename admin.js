@@ -70,6 +70,7 @@ class OpenIDFederationAPIAdmin {
     } catch (error) {
       this.handleError(error)
     }
+    return this.apiKey
   }
 
   quit() {
@@ -285,11 +286,11 @@ class OpenIDFederationAPIAdmin {
   }
 
   async addSubordinateJWKS(subordinateId, json, username=null) {
-    return this.post(`/subordinates/${encodeURIComponent(subordinateId)}/jwks`, json, username)
+    return this.post(`/subordinates/${encodeURIComponent(subordinateId)}/keys`, json, username)
   }
 
   async getSubordinateJWKS(subordinateId, username=null) {
-    const response = await this.get(`/subordinates/${encodeURIComponent(subordinateId)}/jwks`, username)
+    const response = await this.get(`/subordinates/${encodeURIComponent(subordinateId)}/keys`, username)
     return response.jwks
   }
 
