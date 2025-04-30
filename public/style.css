@@ -76,6 +76,7 @@ td.config, td.statement {
 }
 td.modify, td.delete {
   color: red;
+  cursor: pointer;
   font-weight: bold;
   text-align: center;
 }
