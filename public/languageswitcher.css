@@ -4,6 +4,11 @@
   --color-text: #003580;
   --color-background: #FFFFFF;
 }
+.language-switcher {
+  position: absolute;
+  right: 2em;
+  top: 1.5em;
+}
 .language-switcher ul {
   background-color: var(--color-light);
   border-color: var(--color-light);

@@ -16,9 +16,6 @@ header {
   height: 4em;
   overflow: hidden;
 }
-#content {
-  margin: 0 2em;
-}
 fieldset, legend {
   border: 2px outset #999;
   border-radius: 0.5em;
@@ -38,6 +35,10 @@ label, span.label {
 label.inline {
   display: inline-block;
   min-width: auto;
+}
+label[for="jwks"], label[for="metadata"] {
+  position: relative;
+  top: -10em;
 }
 textarea {
   font-family: Consolas, 'Courier New', Courier, monospace;

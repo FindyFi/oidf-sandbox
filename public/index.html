@@ -20,14 +20,28 @@
  </head>
  <body>
   <header>
-   <link rel="stylesheet" href="languageswitcher.css">
+    <h1 lang="en">OpenID Federation Sandbox/Playground</h1>
+    <link rel="stylesheet" href="languageswitcher.css">
    <script src="languageswitcher.js"></script>
    <nav is="language-switcher"></nav>
   </header>
-  <div id="content">
-   <h1 lang="en">OpenID Federation Sandbox/Playground</h1>
-  </div>
-  <form id="add">
+  <table>
+    <caption lang="en">Subordinates</caption>
+    <thead>
+     <tr>
+     <th role="columnheader">#</th>
+     <th role="columnheader" lang="en" title="Ogranization name in the OpenID Federation Entity Configuration metadata">Name</th>
+     <th role="columnheader" lang="en" title="URL identifying the entity in the federation">Identifier</th>
+     <th role="columnheader" lang="en" title="Entity Configuration published by the entity">Config</th>
+     <th role="columnheader" lang="en" title="Entity Statement published by superior (this service)">Statement</th>
+     <th role="columnheader" lang="en">Edit</th>
+     <th role="columnheader" lang="en">Delete</th>
+     </tr>
+    </thead>
+    <tbody id="list">
+    </tbody>
+   </table>
+   <form id="add">
    <input type="hidden" id="id">
    <fieldset>
     <legend lang="en">Add subordinate</legend>
@@ -46,8 +60,8 @@
      <input type="checkbox" id="resource" name="metadatakey" value="oauth_resource"> <label for="resource" lang="en" class="inline">Resource</label>
      <input type="checkbox" id="as" name="metadatakey" value="oauth_authorization_server"> <label for="as" lang="en" class="inline">Authorization Server</label>
     </p>
-    <p><label for="jwks" lang="en">Keys</label> <textarea id="jwks" cols="100" rows="12">[]</textarea></p>
-    <p><label for="metadata" lang="en">Metadata</label> <textarea id="metadata" cols="100" rows="12">{}</textarea></p>
+    <p><label for="jwks" lang="en">Keys:</label> <textarea id="jwks" cols="100" rows="12">[]</textarea></p>
+    <p><label for="metadata" lang="en">Metadata:</label> <textarea id="metadata" cols="100" rows="12">{}</textarea></p>
     <p><input type="submit" id="submit" value="Add" lang="en"></p>
     <p><input type="button" id="cancel" value="Cancel" lang="en"></p>
    </fieldset>
@@ -221,25 +235,6 @@
    addForm.classList.remove('shown')
    submit.value = 'Add'
   }
-  </script>
- 
-  <table>
-   <caption lang="en">Subordinates</caption>
-   <thead>
-    <tr>
-    <th role="columnheader">#</th>
-    <th role="columnheader" lang="en" title="Ogranization name in the OpenID Federation Entity Configuration metadata">Name</th>
-    <th role="columnheader" lang="en" title="URL identifying the entity in the federation">Identifier</th>
-    <th role="columnheader" lang="en" title="Entity Configuration published by the entity">Config</th>
-    <th role="columnheader" lang="en" title="Entity Statement published by superior (this service)">Statement</th>
-    <th role="columnheader" lang="en">Edit</th>
-    <th role="columnheader" lang="en">Delete</th>
-    </tr>
-   </thead>
-   <tbody id="list">
-   </tbody>
-  </table>
-  <script>
    const list = document.getElementById('list')
    function getList() {
     const subordinatesUrl = './api/subordinates'
