@@ -80,14 +80,12 @@
   updateFederationEntity()
   identifier.onchange = async function(e) {
     const confUrl = `./api/proxy/${encodeURIComponent(this.value + '/.well-known/openid-federation')}`
-    console.log(confUrl)
+    // console.log(confUrl)
     try {
       const confResp = await fetch(confUrl)
       if (confResp.ok) {
         const stmt = await confResp.text()
-        console.log(stmt)
         const data = parseJwt(stmt)
-        console.log(data)
         if (data.jwks) {
           updateJWKS(data.jwks.keys)
         }
@@ -107,13 +105,13 @@
   for (const box of boxes) {
     box.onchange = async function(e) {
       if (this.checked) {
-        console.log(this.value, metadataMap[this.value])
+        // console.log(this.value, metadataMap[this.value])
         const url = `./api/getmetadata/${encodeURIComponent(metadataMap[this.value])}/${encodeURIComponent(this.form.identifier.value)}`
         const resp = await fetch(url)
-        console.log(resp.status)
+        // console.log(resp.status)
         if (resp.ok) {
           const json = await resp.json()
-          console.log(json)
+          // console.log(json)
           setMetadata(this.value, json)
           if (json.jwks_uri) {
             const jwksResp = await fetch(`./api/proxy/${encodeURIComponent(json.jwks_uri)}`)
@@ -154,7 +152,7 @@
         addForm.metadata.value = JSON.stringify(currentMetadata, null, 2) + '\n'
       }
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
   function updateJWKS(jwks) {
@@ -202,7 +200,7 @@
      metadata: JSON.parse(this.metadata.value)
     })
    }
-   console.log(JSON.stringify(params, null, 1))
+   // console.log(JSON.stringify(params, null, 1))
    if (hiddenId.value) {
     addUrl += '/' + hiddenId.value
     params.method = 'PUT'
@@ -211,7 +209,7 @@
    const resp = await fetch(addUrl, params)
    if (resp.ok) {
     const json = await resp.json()
-    console.log(json)
+    // console.log(json)
     identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
     addForm.classList.remove('shown')
     getList()
@@ -248,7 +246,7 @@
     fetch(subordinatesUrl)
      .then(resp => resp.json())
      .then(json => {
-        console.log(json)
+        // console.log(json)
         list.innerHTML = ''
         let counter = 0
         json.forEach(subordinate => {
@@ -313,7 +311,6 @@
            homepage.value = subordinate?.metadata?.federation_entity?.homepage_uri || ''
            contact.value = subordinate?.metadata?.federation_entity?.contacts?.join(', ') || ''
            policy.value = subordinate?.metadata?.federation_entity?.policy_uri  || ''
-           console.log(subordinate.netadata)
            if (subordinate?.metadata?.roles) {
              for (const roleId in subordinate.metadata.roles) {
                const box = document.getElementById(roleId)
@@ -321,7 +318,7 @@
                  box.checked = true
                }
              }
-             // delete(subordinate.metadata.roles)
+             delete(subordinate.metadata.roles)
            }
            updateJWKS(subordinate.jwks)
            addForm.metadata.value = JSON.stringify(subordinate.metadata, null, 2) + '\n'
@@ -343,7 +340,7 @@
             fetch(deleteUrl, { method: 'DELETE' })
               .then(resp => resp.json())
               .then(json => {
-                console.log(json)
+                // console.log(json)
                 list.removeChild(tr)
               })
           }
