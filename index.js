@@ -48,7 +48,7 @@ app.get('/api/subordinates/:id', async (req, res) => {
 app.post('/api/subordinates', async (req, res) => {
   try {
     const json = req.body
-    console.log('adding a subordinate', JSON.stringify(json, null, 1))
+    // console.log('adding a subordinate', JSON.stringify(json, null, 1))
     const results = {}
     const sub = await oidf.addSubordinate(json.identifier)
     results['New subordinate'] = sub
@@ -60,13 +60,13 @@ app.post('/api/subordinates', async (req, res) => {
       const meta = await oidf.addSubordinateMetadata(sub.id, entry)
       results[`Subordinate roles set to metadata:`] = meta
     }
-    const addResp = addMetadata(oidf, sub.id, json.metadata)
+    const addResp = await addMetadata(oidf, sub.id, json.metadata)
     results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
     for (const key of json.jwks) {
       const jwks = await oidf.addSubordinateJWKS(sub.id, key)
       results[`New subordinate JWKS ${key}`] = jwks
     }
-    console.log('Subordinate metadata:', JSON.stringify(results, null, 1))
+    // console.log('Subordinate metadata:', JSON.stringify(results, null, 1))
     results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(sub.id)
     res.json(results)
   } catch (e) {
@@ -79,7 +79,7 @@ app.put('/api/subordinates/:id', async (req, res) => {
   try {
     const subId = req.params.id
     const json = req.body
-    console.log(`mofidying the subordinate ${subId}`, JSON.stringify(json, null, 1))
+    // console.log(`mofidying the subordinate ${subId}`, JSON.stringify(json, null, 1))
     const results = {}
     const delResp = await deleteMetadata(oidf, subId)
     results['Deleted subordinate metadata'] = delResp
@@ -87,7 +87,7 @@ app.put('/api/subordinates/:id', async (req, res) => {
     results['Deleted subordinate keys'] = delResp
     for (const key of json.jwks) {
       const jwks = await oidf.addSubordinateJWKS(subId, key)
-      results[`New subordinate JWKS ${key}`] = jwks
+      results[`New subordinate JWKS:`] = jwks
     }
     if (json.roles) {
       let entry = {
@@ -97,7 +97,7 @@ app.put('/api/subordinates/:id', async (req, res) => {
       const meta = await oidf.addSubordinateMetadata(subId, entry)
       results[`Subordinate roles set to metadata:`] = meta
     }
-    const addResp = addMetadata(oidf, subId, json.metadata)
+    const addResp = await addMetadata(oidf, subId, json.metadata)
     results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
     results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(subId)
     res.json(results)
@@ -138,11 +138,11 @@ app.get('/api/proxy/:uri', async (req, res) => {
 })
 
 app.get('/api/getMetadata/:metadataKey/:identifier', async (req, res) => {
-  console.log(req.params)
+  // console.log(req.params)
   try {
     const {identifier, metadataKey} = req.params
     const actorMetadata = `${identifier}/.well-known/${metadataKey}`
-    console.log('Fetching metadata from', actorMetadata)
+    // console.log('Fetching metadata from', actorMetadata)
     const resp = await fetch(actorMetadata)
     let metadata = {}
     if (resp.ok) {
