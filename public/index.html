@@ -63,7 +63,7 @@
     <p><label for="jwks" lang="en">Keys:</label> <textarea id="jwks" cols="100" rows="12">[]</textarea></p>
     <p><label for="metadata" lang="en">Metadata:</label> <textarea id="metadata" cols="100" rows="12">{}</textarea></p>
     <p><input type="submit" id="submit" value="Add" lang="en"></p>
-    <p><input type="button" id="cancel" value="Cancel" lang="en"></p>
+    <p><input type="reset" id="cancel" value="Cancel" lang="en"></p>
    </fieldset>
   </form>
   <script>
@@ -79,7 +79,7 @@
   const addForm = document.getElementById('add')
   const legend = addForm.querySelector('legend')
   legend.onclick = function(e) {
-   addForm.classList.toggle('shown')
+   addForm.classList.add('shown')
   }
   const identifier = document.getElementById('identifier')
   const hiddenId = document.getElementById('id')
@@ -230,8 +230,8 @@
    }
   }
   cancel.onclick = function(e) {
-   e.preventDefault()
-   identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
+   // e.preventDefault()
+   // hiddenId.value = identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = jwksInput.value = metadata.value = ''
    addForm.classList.remove('shown')
    submit.value = 'Add'
   }
