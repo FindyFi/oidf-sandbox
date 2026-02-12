@@ -1,6 +1,6 @@
 {
-    "OpenID Federation Sandbox/Playground": {
-        "fi": "Luottamusrekisterin kokeilukäyttöliittymä"
+    "Trust Registry Admin": {
+        "fi": "Luottamusrekisterin hallintakäyttöliittymä"
     },
     "Authenticate": {
         "fi": "Kirjaudu"
@@ -10,6 +10,9 @@
     },
     "Add subordinate": {
         "fi": "Lisää jäsen"
+    },
+    "From OID4VC": {
+        "fi": "OID4VC:stä"
     },
     "Identifier": {
         "fi": "Tunniste"
@@ -32,11 +35,11 @@
     "Role": {
         "fi": "Rooli"
     },
-    "Keys": {
-        "fi": "Avaimet"
+    "Keys:": {
+        "fi": "Avaimet:"
     },
-    "Metadata": {
-        "fi": "Metatiedot"
+    "Metadata:": {
+        "fi": "Metatiedot:"
     },
     "Issuer": {
         "fi": "Todisteiden myöntäjä"
@@ -76,6 +79,9 @@
     },
     "get": {
         "fi": "näytä"
+    },
+    "(target)": {
+        "fi": "(kohde)"
     },
     "fetch": {
         "fi": "hae"
