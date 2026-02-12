@@ -24,7 +24,7 @@ class OpenIDFederationAPIAdmin {
     } else if (error.request) {
       console.error('No response from API:', error.request)
     } else {
-      console.error('Error creating request:', error.message)
+      console.error('Request error:', error.message)
     }
     throw error
   }
@@ -52,7 +52,7 @@ class OpenIDFederationAPIAdmin {
         client_secret: clientSecret,
         response_type: 'code',
         grant_type: 'client_credentials',
-        scope: 'email'
+        scope: scope
       })
     }
     try {
@@ -68,7 +68,7 @@ class OpenIDFederationAPIAdmin {
         this.authenticate(authUrl, clientId, clientSecret, scope)
       }, TTL)
     } catch (error) {
-      this.handleError(error)
+      await this.handleError(error)
     }
     return this.apiKey
   }
@@ -125,7 +125,7 @@ class OpenIDFederationAPIAdmin {
         return await response.text()
       }
     } catch (error) {
-      this.handleError(error)
+      await this.handleError(error)
     }
   }
 
@@ -139,7 +139,7 @@ class OpenIDFederationAPIAdmin {
     try {
       return await this.request(endpoint, 'GET', null, username)
     } catch (error) {
-      this.handleError(error)
+      await this.handleError(error)
     }
   }
 
@@ -153,7 +153,7 @@ class OpenIDFederationAPIAdmin {
     try {
       return await this.request(endpoint, 'POST', data, username)
     } catch (error) {
-      this.handleError(error)
+      await this.handleError(error)
     }
   }
 
@@ -166,7 +166,7 @@ class OpenIDFederationAPIAdmin {
     try {
       return await this.request(endpoint, 'DELETE', null, username)
     } catch (error) {
-      this.handleError(error)
+      await this.handleError(error)
     }
   }
 
@@ -214,7 +214,6 @@ class OpenIDFederationAPIAdmin {
 
   async getKeys(username=null) {
     const response = await this.get(`/keys`, username)
-    console.log(response)
     return response.jwks
   }
 
@@ -235,6 +234,19 @@ class OpenIDFederationAPIAdmin {
     return this.delete(`/metadata/${entryId}`, username)
   }
 
+  async createMetadataPolicy(json, username=null) {
+    return this.post(`/metadata-policy`, json, username)
+  }
+
+  async getMetadataPolicy(username=null) {
+    const response = await this.get(`/metadata-policy`, username)
+    return response.metadata
+  }
+
+  async deleteMetadataPolicyEntry(entryId, username=null) {
+    return this.delete(`/metadata-policy/${entryId}`, username)
+  }
+
   async addAuthorityHint(authorityId, username=null) {
     const json = {identifier: authorityId}
     return this.post(`/authority-hints`, json, username)
@@ -246,7 +258,7 @@ class OpenIDFederationAPIAdmin {
   }
 
   async deleteAuthorityHint(authorityId, username=null) {
-    return this.delete(`/authority-hints/${authorityId}`, username)
+    return this.delete(`/authority-hints/${encodeURIComponent(authorityId)}`, username)
   }
 
   async getEntityConfiguration(username=null) {
@@ -254,7 +266,6 @@ class OpenIDFederationAPIAdmin {
   }
 
   async publishEntityConfiguration(kmsKeyRef, kid, dryRun=false, username=null) {
-    console.log(kmsKeyRef, kid, dryRun)
     return this.post(`/entity-statement`, {kmsKeyRef, kid, dryRun}, username)
   }
 
