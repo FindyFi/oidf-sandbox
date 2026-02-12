@@ -1,29 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
  <head>
   <meta charset="UTF-8">
-  <title>OpenID Federation Admin</title>
+  <title>Trust Registry Admin</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="favicon.png">
   <meta name="author" content="Findynet">
-  <meta name="description" content="Administration interface for the OpenID Federation server">
+  <meta name="description" content="Administration interface for the Findynet Trust Registry">
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="width">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#FFF">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta property="og:description" content="Administration interface for the OpenID Federation server">
+  <meta property="og:description" content="Administration interface for the Findynet Trust Registry">
   <!-- meta property="og:image" content="" -->
-  <meta property="og:title" content="OpenID Federation Admin">
+  <meta property="og:title" content="Findynet Trust Registry Admin">
   <meta property="og:type" content="website">
   <!-- meta property="og:url" content="" -->
  </head>
  <body>
   <header>
-    <h1 lang="en">OpenID Federation Sandbox/Playground</h1>
-    <link rel="stylesheet" href="languageswitcher.css">
-   <script src="languageswitcher.js"></script>
-   <nav is="language-switcher"></nav>
+    <h1 lang="en">Trust Registry Admin</h1>
+    <script src="./translate-element.js"></script>
+    <translate-element src="./translations.json"></translate-element>
   </header>
   <table>
     <caption lang="en">Subordinates</caption>
@@ -31,7 +29,9 @@
      <tr>
      <th role="columnheader">#</th>
      <th role="columnheader" lang="en" title="Ogranization name in the OpenID Federation Entity Configuration metadata">Name</th>
+<!--
      <th role="columnheader" lang="en" title="URL identifying the entity in the federation">Identifier</th>
+-->
      <th role="columnheader" lang="en" title="Entity Configuration published by the entity">Config</th>
      <th role="columnheader" lang="en" title="Entity Statement published by superior (this service)">Statement</th>
      <th role="columnheader" lang="en">Edit</th>
@@ -45,6 +45,9 @@
    <input type="hidden" id="id">
    <fieldset>
     <legend lang="en">Add subordinate</legend>
+<!--
+    <p><label for="oir4vc" lang="en">From OID4VC</label> <input id="oid4vc" type="url" size="100" placeholder="e.g., openid-credential-offer://... or openid4vp://authorize?..." value=""></p>
+-->
     <p><label for="identifier" lang="en">Identifier</label> <input id="identifier" type="url" size="100" placeholder="https://example.com" pattern="https://.*" value="" required></p>
     <p><label for="name" lang="en">Name</label> <input id="name" size="100" value=""></p>
     <p><label for="logo" lang="en">Logo URI</label> <input id="logo" size="100" type="url" value=""></p>
@@ -68,9 +71,8 @@
   </form>
   <script>
 
-  const fetchEndpoint = 'https://samuel.federation.dev.findy.fi/fetch'
-
   const metadataMap = {
+    oauth_authorization_server: 'oauth-authorization-server',
     openid_provider: 'openid-configuration',
     openid_credential_issuer: 'openid-credential-issuer',
     openid_credential_verifier: 'openid-credential-verifier'
@@ -93,7 +95,7 @@
   const cancel = document.getElementById('cancel')
   updateFederationEntity()
   identifier.onchange = async function(e) {
-    const confUrl = `./api/proxy/${encodeURIComponent(this.value + '/.well-known/openid-federation')}`
+    const confUrl = `./api/proxy/${encodeURIComponent(this.value.replace(/\/$/, '') + '/.well-known/openid-federation')}`
     // console.log(confUrl)
     try {
       const confResp = await fetch(confUrl)
@@ -122,7 +124,7 @@
         // console.log(this.value, metadataMap[this.value])
         const url = `./api/getmetadata/${encodeURIComponent(metadataMap[this.value])}/${encodeURIComponent(this.form.identifier.value)}`
         const resp = await fetch(url)
-        // console.log(resp.status)
+        // console.log(resp.status, url)
         if (resp.ok) {
           const json = await resp.json()
           // console.log(json)
@@ -220,13 +222,17 @@
     params.method = 'PUT'
    }
    // console.log(addUrl, params)
-   const resp = await fetch(addUrl, params)
-   if (resp.ok) {
-    const json = await resp.json()
-    // console.log(json)
-    identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
-    addForm.classList.remove('shown')
-    getList()
+   try {
+    const resp = await fetch(addUrl, params)
+    if (resp.ok) {
+     const json = await resp.json()
+     // console.log(json)
+     identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
+     addForm.classList.remove('shown')
+     getList()
+    }
+   } catch (e) {
+    console.error(e)
    }
   }
   cancel.onclick = function(e) {
@@ -239,30 +245,38 @@
     const subordinatesUrl = './api/subordinates'
     fetch(subordinatesUrl)
      .then(resp => resp.json())
-     .then(json => {
+     .then(async json => {
         // console.log(json)
         list.innerHTML = ''
         let counter = 0
-        json.forEach(subordinate => {
+        for (const subordinate of json) {
           const tr = document.createElement('tr')
-          tr.ondblclick = async function(e) {
-            const stmtUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
-            const resp = await fetch(stmtUrl)
-            if (resp.ok) {
-              const json = await resp.json()
-              console.log(json)
-            }
+          let meta = {}
+          const stmtUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
+          const resp = await fetch(stmtUrl)
+          // console.log(resp.status, stmtUrl)
+          if (resp.ok) {
+            meta = await resp.json()
           }
+          tr.ondblclick = async function(e) {
+            console.log(meta)
+          }
+          const subName = subordinate?.metadata?.federation_entity?.organization_name || subordinate.identifier
           list.appendChild(tr)
-          const id = document.createElement('td')
+          const id = document.createElement('th')
+          id.setAttribute('role', 'rowheader')
           id.className = 'id'
           id.title = subordinate.id
           id.textContent = ++counter
           tr.appendChild(id)
           const n = document.createElement('td')
           n.className = 'name'
-          n.textContent = subordinate?.metadata?.federation_entity?.organization_name || ''
+          const a = document.createElement('a')
+          a.href = subordinate.identifier
+          a.textContent = subName
+          n.appendChild(a)
           tr.appendChild(n)
+/*
           const td = document.createElement('td')
           tr.appendChild(td)
           td.className = 'identifier'
@@ -270,30 +284,44 @@
           a.href = subordinate.identifier
           a.textContent = subordinate.identifier
           td.appendChild(a)
+*/
           const conf = document.createElement('td')
           tr.appendChild(conf)
           conf.className = 'config'
-          a = document.createElement('a')
-          a.href = subordinate.identifier + '/.well-known/openid-federation'
-          a.lang = 'en'
-          a.textContent = 'get'
-          conf.appendChild(a)
+          const ca = document.createElement('a')
+          conf.appendChild(ca)
+          // ca.href = './api/configuration/' + encodeURIComponent(subName)
+          ca.href = './api/configuration/' + encodeURIComponent(subordinate.identifier)
+          ca.lang = 'en'
+          ca.textContent = 'get'
+          const ta = document.createElement('a')
+          conf.appendChild(document.createTextNode(' '))
+          conf.appendChild(ta)
+          ta.href = subordinate.identifier.replace(/\/$/, '') + '/.well-known/openid-federation'
+          ta.lang = 'en'
+          ta.textContent = '(target)'
           const stmt = document.createElement('td')
           tr.appendChild(stmt)
           stmt.className = 'statement'
-          a = document.createElement('a')
-          a.href = `${fetchEndpoint}?sub=${encodeURIComponent(subordinate.identifier)}`
-          a.textContent = 'fetch'
-          a.lang = 'en'
-          stmt.appendChild(a)
+          // console.log(meta)
+          if (meta && meta.source_endpoint) {
+            if (! meta.source_endpoint.startsWith('http')) {
+              meta.source_endpoint = 'https://' + meta.source_endpoint
+            }
+            const ma = document.createElement('a')
+            ma.href = `${meta.source_endpoint}?sub=${encodeURIComponent(subordinate.identifier)}`
+            ma.textContent = 'fetch'
+            ma.lang = 'en'
+            stmt.appendChild(ma)
+          }
           const mod = document.createElement('td')
           tr.appendChild(mod)
           mod.className = 'modify'
-          a = document.createElement('a')
-          a.textContent = '✎'
-          a.lang = 'en'
-          a.title = 'Edit'
-          a.onclick = async function(e) {
+          const ea = document.createElement('a')
+          ea.textContent = '✎'
+          ea.lang = 'en'
+          ea.title = 'Edit'
+          ea.onclick = async function(e) {
            e.preventDefault()
            addForm.reset()
            submit.value = 'Edit' // not rranslated!
@@ -317,15 +345,15 @@
            updateJWKS(subordinate.jwks)
            addForm.metadata.value = JSON.stringify(subordinate.metadata, null, 2) + '\n'
           }
-          mod.appendChild(a)
+          mod.appendChild(ea)
           const del = document.createElement('td')
           tr.appendChild(del)
           del.className = 'delete'
-          a = document.createElement('a')
-          a.lang = 'en'
-          a.title = 'Delete'
-          a.textContent = '❌'
-          a.onclick = function(e) {
+          const da = document.createElement('a')
+          da.lang = 'en'
+          da.title = 'Delete'
+          da.textContent = '❌'
+          da.onclick = function(e) {
             e.preventDefault()
             const deleteUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
             if (!confirm(`Delete subordinate ${subordinate.id}?`)) {
@@ -334,12 +362,12 @@
             fetch(deleteUrl, { method: 'DELETE' })
               .then(resp => resp.json())
               .then(json => {
-                // console.log(json)
+                console.log(json)
                 list.removeChild(tr)
               })
           }
-          del.appendChild(a)
-        })
+          del.appendChild(da)
+        }
       })
    }
    getList()
