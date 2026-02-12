@@ -73,3 +73,33 @@ ssh $ADMIN_USERNAME@$HOSTNAME "pm2 logs"
 ssh $ADMIN_USERNAME@$HOSTNAME "cd github/oidf-sandbox && git stash && git pull && source env.sh && npm update && pm2 restart 0 --update-env"
 
 ```
+
+## updates
+
+Log on to the server:
+
+```sh
+HOSTNAME=sandbox.trustregistry.eu
+ADMIN_USERNAME=findy
+ssh $ADMIN_USERNAME@$HOSTNAME
+```
+
+Reset environment variables if needed:
+
+```sh
+export API_URL='https://admin.findy.trustregistry.eu'
+export PUBLIC_URL='https://findy.trustregistry.eu'
+export AUTH_URL='https://auth.staging.findy.fi/realms/trustregistry-eu/protocol/openid-connect/token'
+export CLIENT_ID='... (stored in 1Password) ...'
+export CLIENT_SECRET='... (stored in 1Password) ...'
+```
+
+Update service
+
+```sh
+cd ~/github/oidf-sandbox
+git stash
+git pull
+npm update
+pm2 restart 0 --update-env
+```
