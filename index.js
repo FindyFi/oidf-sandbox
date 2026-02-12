@@ -1,6 +1,6 @@
 import {randomUUID} from 'node:crypto';
 import express from 'express'
-import { Admin } from './admin.js'
+import { Admin } from '@findyfi/trustregistry-admin'
 
 const apiUrl = process.env.API_URL
 const publicUrl = process.env.PUBLIC_URL
