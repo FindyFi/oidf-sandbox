@@ -63,12 +63,12 @@ rm ${HOSTNAME}.conf
 ssh $ADMIN_USERNAME@$VM_IP "sudo systemctl reload nginx"
 ssh $ADMIN_USERNAME@$VM_IP "sudo certbot run -m "admin@findy.fi" -d $HOSTNAME"
 
-ssh $ADMIN_USERNAME@$VM_IP "mkdir -p github && cd github && git clone 'https://github.com/FindyFi/oidf-sandbox.git'"
+ssh $ADMIN_USERNAME@$HOSTNAME "mkdir -p github && cd github && git clone 'https://github.com/FindyFi/oidf-sandbox.git'"
 
-scp env.sh ${ADMIN_USERNAME}@{$VM_IP}:github/oidf-sandbox
-ssh $ADMIN_USERNAME@$VM_IP "cd github/oidf-sandbox && npm install && source env.sh && pm2 start --name ${HOSTNAME} index.js && pm2 save"
+scp env.sh ${ADMIN_USERNAME}@${HOSTNAME}:github/oidf-sandbox
+ssh $ADMIN_USERNAME@$HOSTNAME "cd github/oidf-sandbox && npm install && source env.sh && pm2 start --name ${HOSTNAME} index.js && pm2 save"
 
-ssh $ADMIN_USERNAME@$VM_IP "pm2 logs"
+ssh $ADMIN_USERNAME@$HOSTNAME "pm2 logs"
 
 ssh $ADMIN_USERNAME@$HOSTNAME "cd github/oidf-sandbox && git stash && git pull && source env.sh && npm update && pm2 restart 0 --update-env"
 
