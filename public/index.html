@@ -20,357 +20,367 @@
  <body>
   <header>
     <h1 lang="en">Trust Registry Admin</h1>
-    <script src="./translate-element.js"></script>
+    <script src="https://unpkg.com/translate-element/translate-element.js" defer></script>
     <translate-element src="./translations.json"></translate-element>
   </header>
   <table>
     <caption lang="en">Subordinates</caption>
     <thead>
-     <tr>
-     <th role="columnheader">#</th>
-     <th role="columnheader" lang="en" title="Ogranization name in the OpenID Federation Entity Configuration metadata">Name</th>
+      <tr>
+        <th role="columnheader">#</th>
+        <th role="columnheader" lang="en"
+          title="Ogranization name in the OpenID Federation Entity Configuration metadata">Name</th>
 <!--
-     <th role="columnheader" lang="en" title="URL identifying the entity in the federation">Identifier</th>
+        <th role="columnheader" lang="en" title="URL identifying the entity in the federation">Identifier</th>
 -->
-     <th role="columnheader" lang="en" title="Entity Configuration published by the entity">Config</th>
-     <th role="columnheader" lang="en" title="Entity Statement published by superior (this service)">Statement</th>
-     <th role="columnheader" lang="en">Edit</th>
-     <th role="columnheader" lang="en">Delete</th>
-     </tr>
+        <th role="columnheader" lang="en" title="Entity Configuration published by the entity">Config</th>
+        <th role="columnheader" lang="en" title="Entity Statement published by superior (this service)">Statement</th>
+        <th role="columnheader" lang="en">Edit</th>
+        <th role="columnheader" lang="en">Delete</th>
+      </tr>
     </thead>
     <tbody id="list">
     </tbody>
-   </table>
-   <form id="add">
-   <input type="hidden" id="id">
-   <fieldset>
-    <legend lang="en">Add subordinate</legend>
+  </table>
+  <form id="add">
+    <input type="hidden" id="id">
+    <fieldset>
+      <legend lang="en">Add subordinate</legend>
 <!--
-    <p><label for="oir4vc" lang="en">From OID4VC</label> <input id="oid4vc" type="url" size="100" placeholder="e.g., openid-credential-offer://... or openid4vp://authorize?..." value=""></p>
+      <p><label for="oir4vc" lang="en">From OID4VC</label> <input id="oid4vc" type="url" size="100" placeholder="e.g., openid-credential-offer://... or openid4vp://authorize?..." value=""></p>
 -->
-    <p><label for="identifier" lang="en">Identifier</label> <input id="identifier" type="url" size="100" placeholder="https://example.com" pattern="https://.*" value="" required></p>
-    <p><label for="name" lang="en">Name</label> <input id="name" size="100" value=""></p>
-    <p><label for="logo" lang="en">Logo URI</label> <input id="logo" size="100" type="url" value=""></p>
-    <p><label for="homepage" lang="en">Homepage</label> <input id="homepage" type="url" size="100" value=""></p>
-    <p><label for="contact" lang="en">Contacts</label> <input id="contact" size="100" value=""></p>
-    <p><label for="policy" lang="en">Policy URI</label> <input id="policy" size="100" value=""></p>
-    <p><span class="label">Role:</span> 
-     <input type="checkbox" id="issuer" name="metadatakey" value="openid_credential_issuer"> <label for="issuer" lang="en" class="inline">Issuer</label>
-     <input type="checkbox" id="verifier" name="metadatakey" value="openid_credential_verifier"> <label for="verifier" lang="en" class="inline">Verifier</label>
-     <input type="checkbox" id="provider" name="metadatakey" value="openid_provider"> <label for="provider" lang="en" class="inline">OP</label>
-     <input type="checkbox" id="rp" name="metadatakey" value="openid_relying_party"> <label for="rp" lang="en" class="inline">RP</label>
-     <input type="checkbox" id="client" name="metadatakey" value="oauth_client"> <label for="client" lang="en" class="inline">Client</label>
-     <input type="checkbox" id="resource" name="metadatakey" value="oauth_resource"> <label for="resource" lang="en" class="inline">Resource</label>
-     <input type="checkbox" id="as" name="metadatakey" value="oauth_authorization_server"> <label for="as" lang="en" class="inline">Authorization Server</label>
-    </p>
-    <p><label for="jwks" lang="en">Keys:</label> <textarea id="jwks" cols="100" rows="12">[]</textarea></p>
-    <p><label for="metadata" lang="en">Metadata:</label> <textarea id="metadata" cols="100" rows="12">{}</textarea></p>
-    <p><input type="submit" id="submit" value="Add" lang="en"></p>
-    <p><input type="reset" id="cancel" value="Cancel" lang="en"></p>
-   </fieldset>
+      <p><label for="identifier" lang="en">Identifier</label> <input id="identifier" type="url" size="100"
+          placeholder="https://example.com" pattern="https://.*" value="" required></p>
+      <p><label for="name" lang="en">Name</label> <input id="name" size="100" value=""></p>
+      <p><label for="logo" lang="en">Logo URI</label> <input id="logo" size="100" type="url" value=""></p>
+      <p><label for="homepage" lang="en">Homepage</label> <input id="homepage" type="url" size="100" value=""></p>
+      <p><label for="contact" lang="en">Contacts</label> <input id="contact" size="100" value=""></p>
+      <p><label for="policy" lang="en">Policy URI</label> <input id="policy" size="100" value=""></p>
+      <p><span class="label">Role:</span>
+        <input type="checkbox" id="issuer" name="metadatakey" value="openid_credential_issuer"> <label for="issuer"
+          lang="en" class="inline">Issuer</label>
+        <input type="checkbox" id="verifier" name="metadatakey" value="openid_credential_verifier"> <label
+          for="verifier" lang="en" class="inline">Verifier</label>
+        <input type="checkbox" id="provider" name="metadatakey" value="openid_provider"> <label for="provider" lang="en"
+          class="inline">OP</label>
+        <input type="checkbox" id="rp" name="metadatakey" value="openid_relying_party"> <label for="rp" lang="en"
+          class="inline">RP</label>
+        <input type="checkbox" id="client" name="metadatakey" value="oauth_client"> <label for="client" lang="en"
+          class="inline">Client</label>
+        <input type="checkbox" id="resource" name="metadatakey" value="oauth_resource"> <label for="resource" lang="en"
+          class="inline">Resource</label>
+        <input type="checkbox" id="as" name="metadatakey" value="oauth_authorization_server"> <label for="as" lang="en"
+          class="inline">Authorization Server</label>
+      </p>
+      <p><label for="jwks" lang="en">Keys:</label> <textarea id="jwks" cols="100" rows="12">[]</textarea></p>
+      <p><label for="metadata" lang="en">Metadata:</label> <textarea id="metadata" cols="100" rows="12">{}</textarea>
+      </p>
+      <p><input type="submit" id="submit" value="Add" lang="en"></p>
+      <p><input type="reset" id="cancel" value="Cancel" lang="en"></p>
+    </fieldset>
   </form>
   <script>
 
-  const metadataMap = {
-    oauth_authorization_server: 'oauth-authorization-server',
-    openid_provider: 'openid-configuration',
-    openid_credential_issuer: 'openid-credential-issuer',
-    openid_credential_verifier: 'openid-credential-verifier'
-  }
+    const metadataMap = {
+      oauth_authorization_server: 'oauth-authorization-server',
+      openid_provider: 'openid-configuration',
+      openid_credential_issuer: 'openid-credential-issuer',
+      openid_credential_verifier: 'openid-credential-verifier'
+    }
 
-  const addForm = document.getElementById('add')
-  const legend = addForm.querySelector('legend')
-  legend.onclick = function(e) {
-   addForm.classList.add('shown')
-  }
-  const identifier = document.getElementById('identifier')
-  const hiddenId = document.getElementById('id')
-  const orgName = document.getElementById('name')
-  const logo = document.getElementById('logo')
-  const homepage = document.getElementById('homepage')
-  const contact = document.getElementById('contact')
-  const policy = document.getElementById('policy')
-  const jwksInput = document.getElementById('jwks')
-  const submit = document.getElementById('submit')
-  const cancel = document.getElementById('cancel')
-  updateFederationEntity()
-  identifier.onchange = async function(e) {
-    const confUrl = `./api/proxy/${encodeURIComponent(this.value.replace(/\/$/, '') + '/.well-known/openid-federation')}`
-    // console.log(confUrl)
-    try {
-      const confResp = await fetch(confUrl)
-      if (confResp.ok) {
-        const stmt = await confResp.text()
-        const data = parseJwt(stmt)
-        if (data.jwks) {
-          updateJWKS(data.jwks.keys)
-        }
-        if (data.metadata) {
-          for (const key in data.metadata) {
-            setMetadata(key, data.metadata[key])
+    const addForm = document.getElementById('add')
+    const legend = addForm.querySelector('legend')
+    legend.onclick = function (e) {
+      addForm.classList.add('shown')
+    }
+    const identifier = document.getElementById('identifier')
+    const hiddenId = document.getElementById('id')
+    const orgName = document.getElementById('name')
+    const logo = document.getElementById('logo')
+    const homepage = document.getElementById('homepage')
+    const contact = document.getElementById('contact')
+    const policy = document.getElementById('policy')
+    const jwksInput = document.getElementById('jwks')
+    const submit = document.getElementById('submit')
+    const cancel = document.getElementById('cancel')
+    updateFederationEntity()
+    identifier.onchange = async function (e) {
+      const confUrl = `./api/proxy/${encodeURIComponent(this.value.replace(/\/$/, '') + '/.well-known/openid-federation')}`
+      // console.log(confUrl)
+      try {
+        const confResp = await fetch(confUrl)
+        if (confResp.ok) {
+          const stmt = await confResp.text()
+          const data = parseJwt(stmt)
+          if (data.jwks) {
+            updateJWKS(data.jwks.keys)
+          }
+          if (data.metadata) {
+            for (const key in data.metadata) {
+              setMetadata(key, data.metadata[key])
+            }
           }
         }
       }
+      catch (e) {
+        console.warn(e)
+      }
     }
-    catch(e) {
-      console.warn(e)
+    orgName.onchange = logo.onchange = homepage.onchange = contact.onchange = policy.onchange = updateFederationEntity
+    const boxes = addForm.querySelectorAll('input[name="metadatakey"]')
+    for (const box of boxes) {
+      box.onchange = async function (e) {
+        if (this.checked) {
+          // console.log(this.value, metadataMap[this.value])
+          const url = `./api/getmetadata/${encodeURIComponent(metadataMap[this.value])}/${encodeURIComponent(this.form.identifier.value)}`
+          const resp = await fetch(url)
+          // console.log(resp.status, url)
+          if (resp.ok) {
+            const json = await resp.json()
+            // console.log(json)
+            setMetadata(this.value, json)
+            if (json.jwks_uri) {
+              const jwksResp = await fetch(`./api/proxy/${encodeURIComponent(json.jwks_uri)}`)
+              if (jwksResp.ok) {
+                const jwksJson = await jwksResp.json()
+                updateJWKS(jwksJson.keys)
+              }
+            }
+          }
+        } else {
+          deleteMetadata(this.value)
+        }
+      }
     }
-  }
-  orgName.onchange = logo.onchange = homepage.onchange = contact.onchange = policy.onchange = updateFederationEntity
-  const boxes = addForm.querySelectorAll('input[name="metadatakey"]')
-  for (const box of boxes) {
-    box.onchange = async function(e) {
-      if (this.checked) {
-        // console.log(this.value, metadataMap[this.value])
-        const url = `./api/getmetadata/${encodeURIComponent(metadataMap[this.value])}/${encodeURIComponent(this.form.identifier.value)}`
-        const resp = await fetch(url)
-        // console.log(resp.status, url)
+    function updateFederationEntity() {
+      let entity = {
+        organization_name: orgName.value || '',
+        logo_uri: logo.value || '',
+        homepage_uri: homepage.value || '',
+        contacts: contact.value.replace(/,\s+/, ',').split(',') || '',
+        policy_uri: policy.value || ''
+      }
+      setMetadata('federation_entity', entity)
+    }
+    function setMetadata(key, value) {
+      if (!addForm.metadata.value) {
+        addForm.metadata.value = '{}\n'
+      }
+      const currentMetadata = JSON.parse(addForm.metadata.value)
+      currentMetadata[key] = value
+      addForm.metadata.value = JSON.stringify(currentMetadata, null, 2) + '\n'
+    }
+    function deleteMetadata(key) {
+      try {
+        const currentMetadata = JSON.parse(addForm.metadata.value)
+        if (key in currentMetadata) {
+          delete currentMetadata[key]
+          addForm.metadata.value = JSON.stringify(currentMetadata, null, 2) + '\n'
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    function updateJWKS(jwks) {
+      const keys = JSON.parse(jwksInput.value) || []
+      for (const key of jwks) {
+        const existingKey = keys.findIndex((elem) => elem.kid === key.kid)
+        if (existingKey >= 0) {
+          keys[existingKey] = key
+        }
+        else {
+          keys.push(key)
+        }
+      }
+      jwksInput.value = JSON.stringify(keys, null, 2) + '\n'
+    }
+    function parseJwt(token) {
+      var base64Str = token.split('.')[1];
+      var base64 = base64Str.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      return JSON.parse(jsonPayload);
+    }
+
+    addForm.onsubmit = async function (e) {
+      e.preventDefault()
+      const roles = {}
+      const boxes = addForm.querySelectorAll('input[name="metadatakey"]')
+      for (const box of boxes) {
+        if (box.checked) {
+          roles[box.id] = box.value
+        }
+      }
+      let addUrl = './api/subordinates'
+      const params = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          identifier: this.identifier.value,
+          roles: roles,
+          jwks: JSON.parse(this.jwks.value),
+          metadata: JSON.parse(this.metadata.value)
+        })
+      }
+      // console.log(JSON.stringify(params, null, 1))
+      if (hiddenId.value) {
+        addUrl += '/' + hiddenId.value
+        params.method = 'PUT'
+      }
+      // console.log(addUrl, params)
+      try {
+        const resp = await fetch(addUrl, params)
         if (resp.ok) {
           const json = await resp.json()
           // console.log(json)
-          setMetadata(this.value, json)
-          if (json.jwks_uri) {
-            const jwksResp = await fetch(`./api/proxy/${encodeURIComponent(json.jwks_uri)}`)
-            if (jwksResp.ok) {
-              const jwksJson = await jwksResp.json()
-              updateJWKS(jwksJson.keys)
-            }
-          }
+          identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
+          addForm.classList.remove('shown')
+          getList()
         }
-      } else {
-        deleteMetadata(this.value)
+      } catch (e) {
+        console.error(e)
       }
     }
-  }
-  function updateFederationEntity() {
-    let entity = {
-      organization_name: orgName.value || '',
-      logo_uri: logo.value || '',
-      homepage_uri: homepage.value || '',
-      contacts: contact.value.replace(/,\s+/, ',').split(',') || '',
-      policy_uri: policy.value || ''
+    cancel.onclick = function (e) {
+      hiddenId.value = ''
+      addForm.classList.remove('shown')
+      submit.value = 'Add'
     }
-    setMetadata('federation_entity', entity)
-  }
-  function setMetadata(key, value) {
-    if (!addForm.metadata.value) {
-      addForm.metadata.value = '{}\n'
-    }
-    const currentMetadata = JSON.parse(addForm.metadata.value)
-    currentMetadata[key] = value
-    addForm.metadata.value = JSON.stringify(currentMetadata, null, 2) + '\n'
-  }
-  function deleteMetadata(key) {
-    try {
-      const currentMetadata = JSON.parse(addForm.metadata.value)
-      if (key in currentMetadata) {
-        delete currentMetadata[key]
-        addForm.metadata.value = JSON.stringify(currentMetadata, null, 2) + '\n'
-      }
-    } catch (e) {
-      console.error(e)
-    }
-  }
-  function updateJWKS(jwks) {
-    const keys = JSON.parse(jwksInput.value) || []
-    for (const key of jwks) {
-      const existingKey = keys.findIndex((elem) => elem.kid === key.kid)
-      if (existingKey >= 0) {
-        keys[existingKey] = key
-      }
-      else {
-        keys.push(key)
-      }
-    }
-    jwksInput.value = JSON.stringify(keys, null, 2) + '\n'
-  }
-  function parseJwt(token) {
-    var base64Str = token.split('.')[1];
-    var base64 = base64Str.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-  }
-
-  addForm.onsubmit = async function(e) {
-   e.preventDefault()
-   const roles = {}
-   const boxes = addForm.querySelectorAll('input[name="metadatakey"]')
-   for (const box of boxes) {
-    if (box.checked) {
-     roles[box.id] = box.value
-    }
-   }
-   let addUrl = './api/subordinates'
-   const params = {
-    method: 'POST',
-    headers: {
-     'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-     identifier: this.identifier.value,
-     roles: roles,
-     jwks: JSON.parse(this.jwks.value),
-     metadata: JSON.parse(this.metadata.value)
-    })
-   }
-   // console.log(JSON.stringify(params, null, 1))
-   if (hiddenId.value) {
-    addUrl += '/' + hiddenId.value
-    params.method = 'PUT'
-   }
-   // console.log(addUrl, params)
-   try {
-    const resp = await fetch(addUrl, params)
-    if (resp.ok) {
-     const json = await resp.json()
-     // console.log(json)
-     identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
-     addForm.classList.remove('shown')
-     getList()
-    }
-   } catch (e) {
-    console.error(e)
-   }
-  }
-  cancel.onclick = function(e) {
-   hiddenId.value = ''
-   addForm.classList.remove('shown')
-   submit.value = 'Add'
-  }
-   const list = document.getElementById('list')
-   function getList() {
-    const subordinatesUrl = './api/subordinates'
-    fetch(subordinatesUrl)
-     .then(resp => resp.json())
-     .then(async json => {
-        // console.log(json)
-        list.innerHTML = ''
-        let counter = 0
-        for (const subordinate of json) {
-          const tr = document.createElement('tr')
-          let meta = {}
-          const stmtUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
-          const resp = await fetch(stmtUrl)
-          // console.log(resp.status, stmtUrl)
-          if (resp.ok) {
-            meta = await resp.json()
-          }
-          tr.ondblclick = async function(e) {
-            console.log(meta)
-          }
-          const subName = subordinate?.metadata?.federation_entity?.organization_name || subordinate.identifier
-          list.appendChild(tr)
-          const id = document.createElement('th')
-          id.setAttribute('role', 'rowheader')
-          id.className = 'id'
-          id.title = subordinate.id
-          id.textContent = ++counter
-          tr.appendChild(id)
-          const n = document.createElement('td')
-          n.className = 'name'
-          const a = document.createElement('a')
-          a.href = subordinate.identifier
-          a.textContent = subName
-          n.appendChild(a)
-          tr.appendChild(n)
-/*
-          const td = document.createElement('td')
-          tr.appendChild(td)
-          td.className = 'identifier'
-          let a = document.createElement('a')
-          a.href = subordinate.identifier
-          a.textContent = subordinate.identifier
-          td.appendChild(a)
-*/
-          const conf = document.createElement('td')
-          tr.appendChild(conf)
-          conf.className = 'config'
-          const ca = document.createElement('a')
-          conf.appendChild(ca)
-          // ca.href = './api/configuration/' + encodeURIComponent(subName)
-          ca.href = './api/configuration/' + encodeURIComponent(subordinate.identifier)
-          ca.lang = 'en'
-          ca.textContent = 'get'
-          const ta = document.createElement('a')
-          conf.appendChild(document.createTextNode(' '))
-          conf.appendChild(ta)
-          ta.href = subordinate.identifier.replace(/\/$/, '') + '/.well-known/openid-federation'
-          ta.lang = 'en'
-          ta.textContent = '(target)'
-          const stmt = document.createElement('td')
-          tr.appendChild(stmt)
-          stmt.className = 'statement'
-          // console.log(meta)
-          if (meta && meta.source_endpoint) {
-            if (! meta.source_endpoint.startsWith('http')) {
-              meta.source_endpoint = 'https://' + meta.source_endpoint
+    const list = document.getElementById('list')
+    function getList() {
+      const subordinatesUrl = './api/subordinates'
+      fetch(subordinatesUrl)
+        .then(resp => resp.json())
+        .then(async json => {
+          // console.log(json)
+          list.innerHTML = ''
+          let counter = 0
+          for (const subordinate of json) {
+            const tr = document.createElement('tr')
+            let meta = {}
+            const stmtUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
+            const resp = await fetch(stmtUrl)
+            // console.log(resp.status, stmtUrl)
+            if (resp.ok) {
+              meta = await resp.json()
             }
-            const ma = document.createElement('a')
-            ma.href = `${meta.source_endpoint}?sub=${encodeURIComponent(subordinate.identifier)}`
-            ma.textContent = 'fetch'
-            ma.lang = 'en'
-            stmt.appendChild(ma)
-          }
-          const mod = document.createElement('td')
-          tr.appendChild(mod)
-          mod.className = 'modify'
-          const ea = document.createElement('a')
-          ea.textContent = '✎'
-          ea.lang = 'en'
-          ea.title = 'Edit'
-          ea.onclick = async function(e) {
-           e.preventDefault()
-           addForm.reset()
-           submit.value = 'Edit' // not rranslated!
-           addForm.classList.add('shown')
-           hiddenId.value = subordinate.id
-           identifier.value = subordinate.identifier
-           orgName.value = subordinate?.metadata?.federation_entity?.organization_name || ''
-           logo.value = subordinate?.metadata?.federation_entity?.logo_uri || ''
-           homepage.value = subordinate?.metadata?.federation_entity?.homepage_uri || ''
-           contact.value = subordinate?.metadata?.federation_entity?.contacts?.join(', ') || ''
-           policy.value = subordinate?.metadata?.federation_entity?.policy_uri  || ''
-           if (subordinate?.metadata?.roles) {
-             for (const roleId in subordinate.metadata.roles) {
-               const box = document.getElementById(roleId)
-               if (box) {
-                 box.checked = true
-               }
-             }
-             delete(subordinate.metadata.roles)
-           }
-           updateJWKS(subordinate.jwks)
-           addForm.metadata.value = JSON.stringify(subordinate.metadata, null, 2) + '\n'
-          }
-          mod.appendChild(ea)
-          const del = document.createElement('td')
-          tr.appendChild(del)
-          del.className = 'delete'
-          const da = document.createElement('a')
-          da.lang = 'en'
-          da.title = 'Delete'
-          da.textContent = '❌'
-          da.onclick = function(e) {
-            e.preventDefault()
-            const deleteUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
-            if (!confirm(`Delete subordinate ${subordinate.id}?`)) {
-              return
+            tr.ondblclick = async function (e) {
+              console.log(meta)
             }
-            fetch(deleteUrl, { method: 'DELETE' })
-              .then(resp => resp.json())
-              .then(json => {
-                console.log(json)
-                list.removeChild(tr)
-              })
+            const subName = subordinate?.metadata?.federation_entity?.organization_name || subordinate.identifier
+            list.appendChild(tr)
+            const id = document.createElement('th')
+            id.setAttribute('role', 'rowheader')
+            id.className = 'id'
+            id.title = subordinate.id
+            id.textContent = ++counter
+            tr.appendChild(id)
+            const n = document.createElement('td')
+            n.className = 'name'
+            const a = document.createElement('a')
+            a.href = subordinate.identifier
+            a.textContent = subName
+            n.appendChild(a)
+            tr.appendChild(n)
+            /*
+                      const td = document.createElement('td')
+                      tr.appendChild(td)
+                      td.className = 'identifier'
+                      let a = document.createElement('a')
+                      a.href = subordinate.identifier
+                      a.textContent = subordinate.identifier
+                      td.appendChild(a)
+            */
+            const conf = document.createElement('td')
+            tr.appendChild(conf)
+            conf.className = 'config'
+            const ca = document.createElement('a')
+            conf.appendChild(ca)
+            // ca.href = './api/configuration/' + encodeURIComponent(subName)
+            ca.href = './api/configuration/' + encodeURIComponent(subordinate.identifier)
+            ca.lang = 'en'
+            ca.textContent = 'get'
+            const ta = document.createElement('a')
+            conf.appendChild(document.createTextNode(' '))
+            conf.appendChild(ta)
+            ta.href = subordinate.identifier.replace(/\/$/, '') + '/.well-known/openid-federation'
+            ta.lang = 'en'
+            ta.textContent = '(target)'
+            const stmt = document.createElement('td')
+            tr.appendChild(stmt)
+            stmt.className = 'statement'
+            // console.log(meta)
+            if (meta && meta.source_endpoint) {
+              if (!meta.source_endpoint.startsWith('http')) {
+                meta.source_endpoint = 'https://' + meta.source_endpoint
+              }
+              const ma = document.createElement('a')
+              ma.href = `${meta.source_endpoint}?sub=${encodeURIComponent(subordinate.identifier)}`
+              ma.textContent = 'fetch'
+              ma.lang = 'en'
+              stmt.appendChild(ma)
+            }
+            const mod = document.createElement('td')
+            tr.appendChild(mod)
+            mod.className = 'modify'
+            const ea = document.createElement('a')
+            ea.textContent = '✎'
+            ea.lang = 'en'
+            ea.title = 'Edit'
+            ea.onclick = async function (e) {
+              e.preventDefault()
+              addForm.reset()
+              submit.value = 'Edit' // not rranslated!
+              addForm.classList.add('shown')
+              hiddenId.value = subordinate.id
+              identifier.value = subordinate.identifier
+              orgName.value = subordinate?.metadata?.federation_entity?.organization_name || ''
+              logo.value = subordinate?.metadata?.federation_entity?.logo_uri || ''
+              homepage.value = subordinate?.metadata?.federation_entity?.homepage_uri || ''
+              contact.value = subordinate?.metadata?.federation_entity?.contacts?.join(', ') || ''
+              policy.value = subordinate?.metadata?.federation_entity?.policy_uri || ''
+              if (subordinate?.metadata?.roles) {
+                for (const roleId in subordinate.metadata.roles) {
+                  const box = document.getElementById(roleId)
+                  if (box) {
+                    box.checked = true
+                  }
+                }
+                delete (subordinate.metadata.roles)
+              }
+              updateJWKS(subordinate.jwks)
+              addForm.metadata.value = JSON.stringify(subordinate.metadata, null, 2) + '\n'
+            }
+            mod.appendChild(ea)
+            const del = document.createElement('td')
+            tr.appendChild(del)
+            del.className = 'delete'
+            const da = document.createElement('a')
+            da.lang = 'en'
+            da.title = 'Delete'
+            da.textContent = '❌'
+            da.onclick = function (e) {
+              e.preventDefault()
+              const deleteUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
+              if (!confirm(`Delete subordinate ${subordinate.id}?`)) {
+                return
+              }
+              fetch(deleteUrl, { method: 'DELETE' })
+                .then(resp => resp.json())
+                .then(json => {
+                  console.log(json)
+                  list.removeChild(tr)
+                })
+            }
+            del.appendChild(da)
           }
-          del.appendChild(da)
-        }
-      })
-   }
-   getList()
+        })
+    }
+    getList()
   </script>
  </body>
 </html>
