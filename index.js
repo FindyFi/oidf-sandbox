@@ -76,6 +76,7 @@ app.get('/api/subordinates', async (req, res) => {
         sub.metadata[entry.key] = entry.metadata
       }
       const jwks = await oidf.getSubordinateJWKS(sub.id)
+      console.log('JWKS for subordinate', sub.id, JSON.stringify(jwks, null, 1))
       sub.jwks = []
       for (const entry of jwks) {
         sub.jwks.push(entry.key)
@@ -168,8 +169,24 @@ app.put('/api/subordinates/:id', async (req, res) => {
       results['Created new account'] = acc
     }
     results['Deleted entity metadata'] = await deleteMetadata(oidf, acc.username, subId)
-    results['Deleted entity keys'] = await deleteKeys(oidf, subId)
-    results[`Key sets:`] = await addSubordinateJWKS(oidf, subId, json.jwks)
+    // results['Deleted subordinate JWKS'] = await oidf.deleteSubordinateJWKS(subId)
+    results['Deleted subordinate JWKS'] = await deleteKeys(oidf, subId)
+/*
+    if (json.jwks) {
+      results[`Existing key sets:`] = await addSubordinateJWKS(oidf, subId, json.jwks)
+    }
+*/
+    const subKeys = await oidf.getKeys(acc.username)
+    console.log(subKeys)
+    if (subKeys) {
+      results[`Existing keys added to subordinate JWKS:`] = await addSubordinateJWKS(oidf, subId, subKeys)
+    }
+    else {
+      const key = await oidf.createKey(randomUUID(), 'ES256', acc.username)
+      results['New key'] = key
+      results[`New key added to key sets:`] = await addSubordinateJWKS(oidf, subId, key)
+    }
+
     if (json.roles) {
       results['Added roles'] = await addRoles(oidf, subId, json.roles)
     }
