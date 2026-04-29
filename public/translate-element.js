@@ -1,1 +1,0 @@
-/Users/samuel/github/translate-element/translate-element.js
