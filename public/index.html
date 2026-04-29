@@ -140,7 +140,7 @@
             // console.log(json)
             setMetadata(this.value, json)
             if (json.jwks_uri) {
-              const jwksResp = await fetch(`./api/proxy/${encodeURIComponent(json.jwks_uri)}`)
+              const jwksResp = await fetch(`./api/proxy/${encodeURIComponent(json.jwks_uri)}`, {headers: {Accept: 'application/json'}})
               if (jwksResp.ok) {
                 const jwksJson = await jwksResp.json()
                 updateJWKS(jwksJson.keys)
@@ -236,8 +236,10 @@
         const resp = await fetch(addUrl, params)
         if (resp.ok) {
           const json = await resp.json()
-          // console.log(json)
+          console.log(json)
+          hiddenId.value = ''
           identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
+          identifier.disabled = false
           addForm.classList.remove('shown')
           getList()
         }
@@ -249,6 +251,7 @@
       hiddenId.value = ''
       addForm.classList.remove('shown')
       submit.value = 'Add'
+      identifier.disabled = false
     }
     const list = document.getElementById('list')
     function getList() {
@@ -338,6 +341,7 @@
               addForm.classList.add('shown')
               hiddenId.value = subordinate.id
               identifier.value = subordinate.identifier
+              identifier.disabled = true
               orgName.value = subordinate?.metadata?.federation_entity?.organization_name || ''
               logo.value = subordinate?.metadata?.federation_entity?.logo_uri || ''
               homepage.value = subordinate?.metadata?.federation_entity?.homepage_uri || ''
