@@ -108,7 +108,7 @@
       const confUrl = `./api/proxy/${encodeURIComponent(this.value.replace(/\/$/, '') + '/.well-known/openid-federation')}`
       // console.log(confUrl)
       try {
-        const confResp = await fetch(confUrl)
+        const confResp = await fetch(confUrl, {headers: {Accept: 'application/json'}})
         if (confResp.ok) {
           const stmt = await confResp.text()
           const data = parseJwt(stmt)
