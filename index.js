@@ -41,7 +41,7 @@ app.get('/api/configuration/:id', async (req, res) => {
   try {
     let key = null
     const keys = await oidf.getKeys(acc.username)
-    console.log(JSON.stringify(keys, null, 1))
+    // console.log(JSON.stringify(keys, null, 1))
     for (const k of keys) {
       if (k.kmsKeyRef && k.kid && k.use == 'sig' && k.alg == 'ES256') {
         key = k
@@ -50,8 +50,8 @@ app.get('/api/configuration/:id', async (req, res) => {
     }
     if (!key) {
       key = await oidf.createKey(randomUUID(), 'ES256', acc.username)
-      console.log(JSON.stringify(key, null, 1))
-      console.log('New key:', key)
+      // console.log(JSON.stringify(key, null, 1))
+      // console.log('New key:', key)
     }
     // const config = await oidf.getEntityConfiguration(subId)
     const config = await oidf.getEntityConfiguration(acc.username)
@@ -76,7 +76,7 @@ app.get('/api/subordinates', async (req, res) => {
         sub.metadata[entry.key] = entry.metadata
       }
       const jwks = await oidf.getSubordinateJWKS(sub.id)
-      console.log('JWKS for subordinate', sub.id, JSON.stringify(jwks, null, 1))
+      // console.log('JWKS for subordinate', sub.id, JSON.stringify(jwks, null, 1))
       sub.jwks = []
       for (const entry of jwks) {
         sub.jwks.push(entry.key)
@@ -101,7 +101,7 @@ app.get('/api/subordinates/:id', async (req, res) => {
 app.post('/api/subordinates', async (req, res) => {
   try {
     const json = req.body
-    console.log('adding a subordinate', JSON.stringify(json, null, 1))
+    // console.log('adding a subordinate', JSON.stringify(json, null, 1))
     const results = {}
 
     const identifier = json.identifier
@@ -117,23 +117,31 @@ app.post('/api/subordinates', async (req, res) => {
     }
 
     let acc = await getAccountByIdentifier(oidf, identifier)
+/*
     if (acc && acc.username == name) {
       results['Existing account'] = acc
+      results['Deleted authority hints'] = await deleteAuthorityHints(oidf, acc.username, null)
       results['Deleted entity metadata'] = await deleteMetadata(oidf, acc.username, null)
     }
     else if (acc) {
       results[`Deleted existing account with different name ${acc.username}`] = await oidf.deleteAccount(acc.username)
       acc = null
     }
+*/
+    if (acc) {
+      results['Existing account'] = acc
+      results['Deleted authority hints'] = await deleteAuthorityHints(oidf, acc.username, null)
+      results['Deleted entity metadata'] = await deleteMetadata(oidf, acc.username, null)
+    }
     if (!acc) {
-      acc = await oidf.createAccount(name, identifier)
+      acc = await oidf.createAccount(randomUUID().replace(/-/g, ''), identifier)
       results['New account'] = acc
     }
 
-    const key = await oidf.createKey(randomUUID(), 'ES256', name)
+    const key = await oidf.createKey(randomUUID(), 'ES256', acc.username)
     results['New key'] = key
 
-    const hint = await oidf.addAuthorityHint(publicUrl, name)
+    const hint = await oidf.addAuthorityHint(publicUrl, acc.username)
     results['Added authority hint'] = hint
 
     const sub = await oidf.addSubordinate(identifier)
@@ -141,7 +149,7 @@ app.post('/api/subordinates', async (req, res) => {
     if (json.roles) {
       results['Added subordinate roles'] = await addRoles(oidf, sub.id, json.roles)
     }
-    const addResp = await addMetadata(oidf, json.metadata, name, sub.id)
+    const addResp = await addMetadata(oidf, json.metadata, acc.username, sub.id)
     results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
     results[`Subordinate key sets:`] = await addSubordinateJWKS(oidf, sub.id, json.jwks)
     results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(sub.id)
@@ -154,23 +162,36 @@ app.post('/api/subordinates', async (req, res) => {
 
 app.put('/api/subordinates/:id', async (req, res) => {
   try {
-    const subId = req.params.id
+    let subId = req.params.id
     const json = req.body
-    console.log(`mofidying the subordinate ${subId}`, JSON.stringify(json, null, 1))
+    // console.log(`modifying the subordinate ${subId}`, JSON.stringify(json, null, 1))
     const results = {}
-    const currentAccounts = await oidf.accounts()
     let acc = await getAccountByIdentifier(oidf, json.identifier)
+    console.log('Existing account for identifier', json.identifier, acc)
     if (!acc) {
+/*
+      // identifier has been changed, so we need to delete the old account and create a new one
       const name = json.name || json.metadata?.federation_entity?.organization_name
       if (!name) {
         throw new Error('name is required in the request body to create a new account')
       }
-      acc = await oidf.createAccount(json.name, json.identifier)
+      results['Deleted old account'] = await oidf.deleteAccount(name)
+      acc = await oidf.createAccount(name, json.identifier)
+*/
+      acc = await oidf.createAccount(randomUUID().replace(/-/g, ''), json.identifier)
+      results['Created new account'] = acc
+      const sub = await oidf.addSubordinate(json.identifier)
+      results['New subordinate'] = sub
+      subId = sub.id
+      console.log(acc)
       results['Created new account'] = acc
     }
+    // else if (subId != acc.id) {
+    //   subId = acc.id
+    // }
     results['Deleted entity metadata'] = await deleteMetadata(oidf, acc.username, subId)
     // results['Deleted subordinate JWKS'] = await oidf.deleteSubordinateJWKS(subId)
-    results['Deleted subordinate JWKS'] = await deleteKeys(oidf, subId)
+    results['Deleted subordinate JWKS'] = await deleteSubordinateKeySets(oidf, subId)
 /*
     if (json.jwks) {
       results[`Existing key sets:`] = await addSubordinateJWKS(oidf, subId, json.jwks)
@@ -178,13 +199,13 @@ app.put('/api/subordinates/:id', async (req, res) => {
 */
     const subKeys = await oidf.getKeys(acc.username)
     console.log(subKeys)
-    if (subKeys) {
+    if (subKeys && subKeys.length && subKeys.length > 0) {
       results[`Existing keys added to subordinate JWKS:`] = await addSubordinateJWKS(oidf, subId, subKeys)
     }
     else {
       const key = await oidf.createKey(randomUUID(), 'ES256', acc.username)
       results['New key'] = key
-      results[`New key added to key sets:`] = await addSubordinateJWKS(oidf, subId, key)
+      results[`New key added to key sets:`] = await addSubordinateJWKS(oidf, subId, [key])
     }
 
     if (json.roles) {
@@ -211,6 +232,8 @@ app.delete('/api/subordinates/:id', async (req, res) => {
     const results = {}
     const acc = await getAccountByIdentifier(oidf, req.params.id)
     if (acc) {
+      results['Deleted authority hints'] = await deleteAuthorityHints(oidf, acc.username, null)
+      results['Deleted entity metadata'] = await deleteMetadata(oidf, acc.username, null)
       results['Deleted account'] = await oidf.deleteAccount(acc.username)
     }
     results['Deleted subordinate'] = await oidf.deleteSubordinate(req.params.id)
@@ -252,15 +275,15 @@ app.get('/api/getMetadata/:metadataKey/:identifier', async (req, res) => {
     const path1 = `/.well-known/${metadataKey}${url1.pathname}`
     url1.pathname = path1
     actorMetadata = url1.toString()
-    console.log('Fetching metadata from', actorMetadata)
-    let resp = await fetch(actorMetadata)
+    // console.log('Fetching metadata from', actorMetadata)
+    let resp = await fetch(actorMetadata, {headers: {'Accept': 'application/json'}})
     if (resp.status == 404) {
-      // if not found, try the legacy location without .well-known
+      // if not found, try the legacy location
       const url2 = new URL(identifier)
       const path2 = `${url2.pathname.replace(/\/$/, '')}/.well-known/${metadataKey}`
       url2.pathname = path2
       actorMetadata = url2.toString()
-      console.log('Fetching metadata from', actorMetadata)
+      // console.log('Fetching metadata from', actorMetadata)
       resp = await fetch(actorMetadata)
     }
     if (resp.ok) {
@@ -360,6 +383,15 @@ async function deleteMetadata(oidf, name, subId=null) {
   return results
 }
 
+async function deleteAuthorityHints(oidf, name, subId=null) {
+  const results = {}
+  const hints = await oidf.getAuthorityHints(name)
+  for (const hint of hints) {
+    results[hint.id] = await oidf.deleteAuthorityHint(hint.id, name)
+  }
+  return results
+}
+
 async function addMetadataPolicy(oidf, metadataPolicy) {
   const results = {}
   for (const key in metadata) {
@@ -382,7 +414,7 @@ async function deleteMetadataPolicy(oidf) {
   return results
 }
 
-async function deleteKeys(oidf, subId) {
+async function deleteSubordinateKeySets(oidf, subId) {
   const results = {}
   const keys = await oidf.getSubordinateJWKS(subId)
   for (const key of keys) {
