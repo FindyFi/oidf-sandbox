@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {readFile, writeFile} from 'node:fs/promises'
 import express from 'express'
 import { Admin } from '@findyfi/trustregistry-admin'
 
@@ -25,6 +26,21 @@ app.get('/api/accounts', async (req, res) => {
   try {
     const accs = await oidf.accounts()
     res.json(accs)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json(e)
+  }
+})
+
+app.get('/api/tenants', async (req, res) => {
+  try {
+    const accounts = await oidf.accounts()
+    for (const acc of accounts) {
+      const metadata = await oidf.getMetadata(acc.username)
+      const fedEntity = metadata.find(m => m.key === 'federation_entity')
+      acc.name = fedEntity?.metadata?.organization_name || null
+    }
+    res.json(accounts)
   } catch (e) {
     console.error(e)
     res.status(500).json(e)
@@ -68,7 +84,12 @@ app.get('/api/configuration/:id', async (req, res) => {
 
 app.get('/api/subordinates', async (req, res) => {
   try {
-    const results = await oidf.getSubordinates()
+    const tenantMap = await readTenantMap()
+    const tenant = req.query.tenant
+    let results = await oidf.getSubordinates()
+    if (tenant) {
+      results = results.filter(sub => tenantMap[sub.id] === tenant)
+    }
     for (const sub of results) {
       const metadata = await oidf.getSubordinateMetadata(sub.id)
       sub.metadata = {}
@@ -81,6 +102,7 @@ app.get('/api/subordinates', async (req, res) => {
       for (const entry of jwks) {
         sub.jwks.push(entry.key)
       }
+      sub.tenant = tenantMap[sub.id] || null
     }
     res.json(results)
   } catch (e) {
@@ -146,6 +168,11 @@ app.post('/api/subordinates', async (req, res) => {
 
     const sub = await oidf.addSubordinate(identifier)
     results['New subordinate'] = sub
+    if (json.tenant) {
+      const tenantMap = await readTenantMap()
+      tenantMap[sub.id] = json.tenant
+      await writeTenantMap(tenantMap)
+    }
     if (json.roles) {
       results['Added subordinate roles'] = await addRoles(oidf, sub.id, json.roles)
     }
@@ -182,9 +209,16 @@ app.put('/api/subordinates/:id', async (req, res) => {
       results['Created new account'] = acc
       const sub = await oidf.addSubordinate(json.identifier)
       results['New subordinate'] = sub
+      const oldSubId = subId
       subId = sub.id
       console.log(acc)
       results['Created new account'] = acc
+      const tenantMap = await readTenantMap()
+      if (tenantMap[oldSubId]) {
+        tenantMap[subId] = tenantMap[oldSubId]
+        delete tenantMap[oldSubId]
+        await writeTenantMap(tenantMap)
+      }
     }
     // else if (subId != acc.id) {
     //   subId = acc.id
@@ -237,6 +271,9 @@ app.delete('/api/subordinates/:id', async (req, res) => {
       results['Deleted account'] = await oidf.deleteAccount(acc.username)
     }
     results['Deleted subordinate'] = await oidf.deleteSubordinate(req.params.id)
+    const tenantMap = await readTenantMap()
+    delete tenantMap[req.params.id]
+    await writeTenantMap(tenantMap)
     res.json(results)
   } catch (e) {
     console.error(e)
@@ -421,4 +458,16 @@ async function deleteSubordinateKeySets(oidf, subId) {
     results[key.id] = await oidf.deleteSubordinateJWKS(subId, key.id)
   }
   return results
+}
+
+async function readTenantMap() {
+  try {
+    return JSON.parse(await readFile('tenant-map.json', 'utf8'))
+  } catch {
+    return {}
+  }
+}
+
+async function writeTenantMap(map) {
+  await writeFile('tenant-map.json', JSON.stringify(map, null, 2))
 }
