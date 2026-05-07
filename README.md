@@ -1,15 +1,76 @@
-# OpenID Federation sandbox UI
+# OpenID Federation Trust Registry Admin UI
 
-To install dependencies:
+A web-based administration interface for managing an [OpenID Federation](https://openid.net/specs/openid-federation-1_0.html) Trust Registry. It allows federation operators to onboard and manage subordinate entities — issuers, verifiers, relying parties, and other federation participants — by maintaining their metadata, cryptographic keys, roles, and authority hints.
+
+## Architecture
+
+```text
+Browser (HTML/CSS/JS)
+        │  HTTP
+        ▼
+Express.js server (index.js)
+        │  @findyfi/trustregistry-admin SDK
+        ▼
+Trust Registry API (API_URL)
+        │  OAuth 2.0 client credentials
+        ▼
+Auth Server (AUTH_URL)
+```
+
+**Backend** (`index.js`) — Node.js/Express. Authenticates with the Trust Registry API using OAuth 2.0 client credentials at startup, then exposes a REST API consumed by the frontend. Handles session-based user authentication backed by a local database.
+
+**Frontend** (`public/`) — Vanilla HTML/CSS/JS. No build step. Displays a table of subordinate entities with add/edit/delete actions and auto-populates metadata by fetching each entity's `.well-known` endpoints.
+
+**Database** (`db.js`) — Knex query builder with SQLite (development) or PostgreSQL (production). Stores user accounts only; all federation data lives in the Trust Registry API.
+
+**Tenant model** — The Trust Registry supports multiple tenants (federation operators), each identified by an account username. Users are assigned to a tenant and can only see and manage that tenant's subordinates. Admin users can see all tenants.
+
+## Environment variables
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `API_URL` | Yes | Trust Registry admin API base URL |
+| `PUBLIC_URL` | Yes | Public URL of this federation's trust anchor |
+| `AUTH_URL` | Yes | OAuth 2.0 token endpoint for API authentication |
+| `CLIENT_ID` | Yes | OAuth client ID (stored in 1Password) |
+| `CLIENT_SECRET` | Yes | OAuth client secret (stored in 1Password) |
+| `SESSION_SECRET` | Recommended | Secret for signing session cookies; random per-startup if not set |
+| `DB_TYPE` | No | Set to `postgres` to use PostgreSQL; defaults to SQLite |
+| `DATABASE_URL` | If Postgres | PostgreSQL connection string |
+| `DB_PATH` | No | SQLite file path; defaults to `./users.db` |
+| `PORT` | No | HTTP port; defaults to `3000` |
+
+## Installation
 
 ```bash
 npm install
 ```
 
-To run:
+### First-time setup
+
+Create the first admin user:
 
 ```bash
-npm run index.js
+node scripts/add-user.js --username admin --password <password> --admin
+```
+
+To add a tenant user, first find the tenant's account username from the running server:
+
+```bash
+curl http://localhost:3000/api/tenants   # requires a valid session; use after login
+```
+
+Then create the user:
+
+```bash
+node scripts/add-user.js --username alice --password <password> --tenant <tenant-username>
+```
+
+## Running locally
+
+```bash
+source federation.dev.findy.fi.env
+node index.js
 ```
 
 ## Deployment to an Azure VM
@@ -71,10 +132,9 @@ ssh $ADMIN_USERNAME@$HOSTNAME "cd github/oidf-sandbox && npm install && source e
 ssh $ADMIN_USERNAME@$HOSTNAME "pm2 logs"
 
 ssh $ADMIN_USERNAME@$HOSTNAME "cd github/oidf-sandbox && git stash && git pull && source env.sh && npm update && pm2 restart 0 --update-env"
-
 ```
 
-## updates
+## Updating a running deployment
 
 Log on to the server:
 
@@ -92,9 +152,10 @@ export PUBLIC_URL='https://findy.trustregistry.eu'
 export AUTH_URL='https://auth.staging.findy.fi/realms/trustregistry-eu/protocol/openid-connect/token'
 export CLIENT_ID='... (stored in 1Password) ...'
 export CLIENT_SECRET='... (stored in 1Password) ...'
+export SESSION_SECRET='... (stored in 1Password) ...'
 ```
 
-Update service
+Update service:
 
 ```sh
 cd ~/github/oidf-sandbox

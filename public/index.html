@@ -18,14 +18,33 @@
   <!-- meta property="og:url" content="" -->
  </head>
  <body>
+  <div id="login-screen">
+    <div class="login-card">
+      <h2 lang="en">Trust Registry Admin</h2>
+      <form id="login-form">
+        <p><label for="login-username" lang="en">Username</label>
+           <input id="login-username" type="text" autocomplete="username" required></p>
+        <p><label for="login-password" lang="en">Password</label>
+           <input id="login-password" type="password" autocomplete="current-password" required></p>
+        <p id="login-error" class="error" hidden></p>
+        <p><button type="submit" lang="en">Login</button></p>
+      </form>
+    </div>
+  </div>
   <header>
     <h1 lang="en">Trust Registry Admin</h1>
     <script src="https://unpkg.com/translate-element/translate-element.js" defer></script>
+    <div id="tenant-area" hidden>
+      <label for="tenant-select" lang="en">Tenant:</label>
+      <select id="tenant-select">
+        <option value="" lang="en">All tenants</option>
+      </select>
+    </div>
     <translate-element src="./translations.json"></translate-element>
-    <label for="tenant-select" lang="en">Tenant:</label>
-    <select id="tenant-select">
-      <option value="" lang="en">All tenants</option>
-    </select>
+    <div id="user-info" hidden>
+      <span id="logged-in-as"></span>
+      <button id="logout-btn" type="button" lang="en">Logout</button>
+    </div>
   </header>
   <table>
     <caption lang="en">Subordinates</caption>
@@ -94,12 +113,15 @@
 
     let selectedTenant = ''
     let isEditing = false
+    let currentUser = null
 
     const tenantSelect = document.getElementById('tenant-select')
     async function loadTenants() {
       const resp = await fetch('./api/tenants')
       if (!resp.ok) return
       const tenants = await resp.json()
+      // Clear all but the first "All tenants" option
+      while (tenantSelect.options.length > 1) tenantSelect.remove(1)
       for (const t of tenants) {
         const opt = document.createElement('option')
         opt.value = t.username
@@ -110,6 +132,61 @@
     tenantSelect.onchange = function () {
       selectedTenant = this.value
       getList()
+    }
+
+    function showLogin() {
+      document.getElementById('login-screen').hidden = false
+      document.getElementById('user-info').hidden = true
+      document.getElementById('tenant-area').hidden = true
+      document.getElementById('login-username').focus()
+    }
+
+    function showApp(user) {
+      currentUser = user
+      document.getElementById('login-screen').hidden = true
+      document.getElementById('user-info').hidden = false
+      document.getElementById('logged-in-as').textContent = user.username
+      if (user.isAdmin) {
+        document.getElementById('tenant-area').hidden = false
+        loadTenants()
+      } else {
+        selectedTenant = user.tenantUsername
+      }
+      getList()
+    }
+
+    async function checkAuth() {
+      const resp = await fetch('./api/auth/me')
+      if (!resp.ok) { showLogin(); return }
+      showApp(await resp.json())
+    }
+
+    document.getElementById('login-form').onsubmit = async function (e) {
+      e.preventDefault()
+      const errorEl = document.getElementById('login-error')
+      errorEl.hidden = true
+      const resp = await fetch('./api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: document.getElementById('login-username').value,
+          password: document.getElementById('login-password').value,
+        })
+      })
+      if (resp.ok) {
+        showApp(await resp.json())
+      } else {
+        const err = await resp.json()
+        errorEl.textContent = err.error || 'Login failed'
+        errorEl.hidden = false
+      }
+    }
+
+    document.getElementById('logout-btn').onclick = async function () {
+      await fetch('./api/auth/logout', {method: 'POST'})
+      currentUser = null
+      selectedTenant = ''
+      showLogin()
     }
 
     const addForm = document.getElementById('add')
@@ -293,8 +370,9 @@
         ? `./api/subordinates?tenant=${encodeURIComponent(selectedTenant)}`
         : './api/subordinates'
       fetch(subordinatesUrl)
-        .then(resp => resp.json())
+        .then(resp => { if (resp.status === 401) { showLogin(); return null } return resp.json() })
         .then(async json => {
+          if (!json) return
           // console.log(json)
           list.innerHTML = ''
           let counter = 0
@@ -421,8 +499,7 @@
           }
         })
     }
-    loadTenants()
-    getList()
+    checkAuth()
   </script>
  </body>
 </html>

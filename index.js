@@ -1,7 +1,10 @@
 import {randomUUID} from 'node:crypto';
 import {readFile, writeFile} from 'node:fs/promises'
 import express from 'express'
+import session from 'express-session'
+import bcrypt from 'bcryptjs'
 import { Admin } from '@findyfi/trustregistry-admin'
+import {db, initDb} from './db.js'
 
 const apiUrl = process.env.API_URL
 const publicUrl = process.env.PUBLIC_URL
@@ -15,12 +18,113 @@ if (!apiUrl || !authUrl || !clientId || !clientSecret) {
   process.exit(1)
 }
 
+const sessionSecret = process.env.SESSION_SECRET || (() => {
+  console.warn('SESSION_SECRET not set — using random secret; sessions will not survive restarts')
+  return randomUUID()
+})()
+
 const oidf = new Admin(apiUrl)
 const apiKey = await oidf.authenticate(authUrl, clientId, clientSecret)
+await initDb()
 
 const app = express();
 app.use(express.json())
 app.use(express.static('public'))
+app.use(session({
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {httpOnly: true, sameSite: 'strict'},
+}))
+
+// --- Auth routes (no login required) ---
+
+app.post('/api/auth/login', async (req, res) => {
+  const {username, password} = req.body
+  if (!username || !password) {
+    return res.status(400).json({error: 'username and password are required'})
+  }
+  try {
+    const user = await db('users').where({username}).first()
+    if (!user || !await bcrypt.compare(password, user.password_hash)) {
+      return res.status(401).json({error: 'Invalid username or password'})
+    }
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({error: 'Session error'})
+      req.session.userId = user.id
+      req.session.username = user.username
+      req.session.tenantUsername = user.tenant_username
+      req.session.isAdmin = user.is_admin
+      res.json({username: user.username, tenantUsername: user.tenant_username, isAdmin: user.is_admin})
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({error: 'Internal server error'})
+  }
+})
+
+app.post('/api/auth/logout', (req, res) => {
+  req.session.destroy(() => res.json({ok: true}))
+})
+
+app.get('/api/auth/me', (req, res) => {
+  if (!req.session?.userId) return res.status(401).json({error: 'Unauthorized'})
+  res.json({
+    username: req.session.username,
+    tenantUsername: req.session.tenantUsername,
+    isAdmin: req.session.isAdmin,
+  })
+})
+
+// --- Auth middleware — all routes below require a valid session ---
+
+app.use((req, res, next) => {
+  if (!req.session?.userId) return res.status(401).json({error: 'Unauthorized'})
+  next()
+})
+
+// --- User management (admin only) ---
+
+app.get('/api/users', async (req, res) => {
+  if (!req.session.isAdmin) return res.status(403).json({error: 'Forbidden'})
+  try {
+    const users = await db('users').select('id', 'username', 'tenant_username', 'is_admin', 'created_at')
+    res.json(users)
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({error: 'Internal server error'})
+  }
+})
+
+app.post('/api/users', async (req, res) => {
+  if (!req.session.isAdmin) return res.status(403).json({error: 'Forbidden'})
+  const {username, password, tenant_username, is_admin} = req.body
+  if (!username || !password) return res.status(400).json({error: 'username and password are required'})
+  if (!is_admin && !tenant_username) return res.status(400).json({error: 'tenant_username is required for non-admin users'})
+  try {
+    const password_hash = await bcrypt.hash(password, 10)
+    const [id] = await db('users').insert({username, password_hash, tenant_username: is_admin ? null : tenant_username, is_admin: !!is_admin})
+    res.status(201).json({id, username, tenant_username, is_admin: !!is_admin})
+  } catch (e) {
+    if (e.code === 'SQLITE_CONSTRAINT' || e.code === '23505') {
+      return res.status(409).json({error: `User "${username}" already exists`})
+    }
+    console.error(e)
+    res.status(500).json({error: 'Internal server error'})
+  }
+})
+
+app.delete('/api/users/:id', async (req, res) => {
+  if (!req.session.isAdmin) return res.status(403).json({error: 'Forbidden'})
+  try {
+    const deleted = await db('users').where({id: req.params.id}).delete()
+    if (!deleted) return res.status(404).json({error: 'User not found'})
+    res.json({ok: true})
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({error: 'Internal server error'})
+  }
+})
 
 app.get('/api/accounts', async (req, res) => {
   try {
@@ -85,7 +189,7 @@ app.get('/api/configuration/:id', async (req, res) => {
 app.get('/api/subordinates', async (req, res) => {
   try {
     const tenantMap = await readTenantMap()
-    const tenant = req.query.tenant
+    const tenant = req.session.isAdmin ? (req.query.tenant || null) : req.session.tenantUsername
     let results = await oidf.getSubordinates()
     if (tenant) {
       results = results.filter(sub => tenantMap[sub.id] === tenant)
@@ -168,9 +272,10 @@ app.post('/api/subordinates', async (req, res) => {
 
     const sub = await oidf.addSubordinate(identifier)
     results['New subordinate'] = sub
-    if (json.tenant) {
+    const tenant = req.session.isAdmin ? json.tenant : req.session.tenantUsername
+    if (tenant) {
       const tenantMap = await readTenantMap()
-      tenantMap[sub.id] = json.tenant
+      tenantMap[sub.id] = tenant
       await writeTenantMap(tenantMap)
     }
     if (json.roles) {

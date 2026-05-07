@@ -1,7 +1,7 @@
 {
-  "name": "openid-federation-client",
+  "name": "trustregistry-ui",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.0.4",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,12 @@
   "license": "ISC",
   "description": "A simple user interface for administrating an OpenID Federation server",
   "dependencies": {
+    "@findyfi/trustregistry-admin": "latest",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.9.0",
     "express": "latest",
-    "@findyfi/trustregistry-admin": "latest"
+    "express-session": "^1.19.0",
+    "knex": "^3.2.10",
+    "pg": "^8.20.0"
   }
 }

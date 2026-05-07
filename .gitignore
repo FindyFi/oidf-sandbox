@@ -175,5 +175,6 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
-# Runtime tenant mapping (managed by the server)
+# Runtime data (managed by the server)
 tenant-map.json
+users.db
