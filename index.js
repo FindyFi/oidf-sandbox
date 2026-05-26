@@ -158,6 +158,7 @@ app.get('/api/configuration/:id', async (req, res) => {
     res.status(404).json({error: `Account with identifier ${subId} not found`})
     return
   }
+  if (acc.username === 'root') { acc.username = null}
   try {
     let key = null
     const keys = await oidf.getKeys(acc.username)
@@ -175,9 +176,9 @@ app.get('/api/configuration/:id', async (req, res) => {
     }
     // const config = await oidf.getEntityConfiguration(subId)
     const config = await oidf.getEntityConfiguration(acc.username)
-    console.log('Entity configuration:', JSON.stringify(config, null, 1))
+    // console.log('Entity configuration:', JSON.stringify(config, null, 1))
     const result = await oidf.publishEntityConfiguration(key.kmsKeyRef, key.kid, false, acc.username)
-    console.log('Published entity configuration:', result)
+    // console.log('Published entity configuration:', result)
     res.header('Content-Type', 'application/entity-statement+jwt')
     res.send(result)
   } catch (e) {
@@ -282,7 +283,7 @@ app.post('/api/subordinates', async (req, res) => {
       results['Added subordinate roles'] = await addRoles(oidf, sub.id, json.roles)
     }
     const addResp = await addMetadata(oidf, json.metadata, acc.username, sub.id)
-    results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
+    results['New account metadata'] = JSON.stringify(addResp, null, 1)
     results[`Subordinate key sets:`] = await addSubordinateJWKS(oidf, sub.id, json.jwks)
     results['Published subordinate metadata'] = await oidf.publishSubordinateStatement(sub.id)
     res.json(results)
@@ -316,7 +317,7 @@ app.put('/api/subordinates/:id', async (req, res) => {
       results['New subordinate'] = sub
       const oldSubId = subId
       subId = sub.id
-      console.log(acc)
+      // console.log(acc)
       results['Created new account'] = acc
       const tenantMap = await readTenantMap()
       if (tenantMap[oldSubId]) {
@@ -337,7 +338,7 @@ app.put('/api/subordinates/:id', async (req, res) => {
     }
 */
     const subKeys = await oidf.getKeys(acc.username)
-    console.log(subKeys)
+    // console.log(subKeys)
     if (subKeys && subKeys.length && subKeys.length > 0) {
       results[`Existing keys added to subordinate JWKS:`] = await addSubordinateJWKS(oidf, subId, subKeys)
     }
@@ -351,7 +352,7 @@ app.put('/api/subordinates/:id', async (req, res) => {
       results['Added roles'] = await addRoles(oidf, subId, json.roles)
     }
     const addResp = await addMetadata(oidf, json.metadata, acc.username, subId)
-    results['New subordinate metadata'] = JSON.stringify(addResp, null, 1)
+    results['New account metadata'] = JSON.stringify(addResp, null, 1)
     const existingHints = await oidf.getAuthorityHints(acc.username)
     for (const hint of existingHints) {
       results['Deleted existing authority hint'] = await oidf.deleteAuthorityHint(hint.id, acc.username)
@@ -374,6 +375,9 @@ app.delete('/api/subordinates/:id', async (req, res) => {
       results['Deleted authority hints'] = await deleteAuthorityHints(oidf, acc.username, null)
       results['Deleted entity metadata'] = await deleteMetadata(oidf, acc.username, null)
       results['Deleted account'] = await oidf.deleteAccount(acc.username)
+    }
+    else {
+      console.warn(`No account found for identifier ${req.params.id}`)
     }
     results['Deleted subordinate'] = await oidf.deleteSubordinate(req.params.id)
     const tenantMap = await readTenantMap()
@@ -407,7 +411,7 @@ app.get('/api/proxy/:uri', async (req, res) => {
 })
 
 app.get('/api/getMetadata/:metadataKey/:identifier', async (req, res) => {
-  console.log(req.params)
+  // console.log(req.params)
   try {
     const {identifier, metadataKey} = req.params
 
@@ -465,6 +469,7 @@ async function addSubordinateJWKS(oidf, subId, jwks) {
   for (const key of jwks) {
     // hack to make the federation server accept the key
     key.alg = key.alg || 'ES256'
+    // console.log('Adding key to subordinate JWKS', subId, JSON.stringify(key, null, 1))
     const jwks = await oidf.addSubordinateJWKS(subId, key)
     results[`New subordinate JWKS:`] = jwks
   }
