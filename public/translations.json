@@ -5,6 +5,24 @@
     "Authenticate": {
         "fi": "Kirjaudu"
     },
+    "Login": {
+        "fi": "Kirjaudu"
+    },
+    "Logout": {
+        "fi": "Kirjaudu ulos"
+    },
+    "Username": {
+        "fi": "Käyttäjätunnus"
+    },
+    "Password": {
+        "fi": "Salasana"
+    },
+    "Tenant:": {
+        "fi": "Asiakas:"
+    },
+    "All tenants": {
+        "fi": "Kaikki"
+    },
     "Subordinates": {
         "fi": "Verkoston jäsenet"
     },
@@ -35,11 +53,14 @@
     "Role": {
         "fi": "Rooli"
     },
-    "Keys:": {
-        "fi": "Avaimet:"
+    "Roles": {
+        "fi": "Roolit"
     },
-    "Metadata:": {
-        "fi": "Metatiedot:"
+    "Keys": {
+        "fi": "Avaimet"
+    },
+    "Metadata": {
+        "fi": "Metatiedot"
     },
     "Issuer": {
         "fi": "Todisteiden myöntäjä"
@@ -80,8 +101,8 @@
     "get": {
         "fi": "näytä"
     },
-    "(target)": {
-        "fi": "(kohde)"
+    "target": {
+        "fi": "kohde"
     },
     "fetch": {
         "fi": "hae"

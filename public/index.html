@@ -3,6 +3,9 @@
  <head>
   <meta charset="UTF-8">
   <title>Trust Registry Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="favicon.png">
   <meta name="author" content="Findynet">
@@ -16,92 +19,161 @@
   <meta property="og:title" content="Findynet Trust Registry Admin">
   <meta property="og:type" content="website">
   <!-- meta property="og:url" content="" -->
+  <script src="https://unpkg.com/translate-element/translate-element.js" defer></script>
  </head>
  <body>
+
+  <!-- Login screen -->
   <div id="login-screen">
-    <div class="login-card">
-      <h2 lang="en">Trust Registry Admin</h2>
-      <form id="login-form">
-        <p><label for="login-username" lang="en">Username</label>
-           <input id="login-username" type="text" autocomplete="username" required></p>
-        <p><label for="login-password" lang="en">Password</label>
-           <input id="login-password" type="password" autocomplete="current-password" required></p>
-        <p id="login-error" class="error" hidden></p>
-        <p><button type="submit" lang="en">Login</button></p>
-      </form>
+   <div class="login-card">
+    <div class="login-card-header">
+     <h2 lang="en">Trust Registry Admin</h2>
     </div>
+    <div class="login-card-body">
+     <form id="login-form">
+      <label for="login-username" lang="en">Username</label>
+      <input id="login-username" type="text" autocomplete="username" required>
+      <label for="login-password" lang="en">Password</label>
+      <input id="login-password" type="password" autocomplete="current-password" required>
+      <p id="login-error" class="error" hidden></p>
+      <button type="submit"><span lang="en">Login</span></button>
+     </form>
+    </div>
+   </div>
   </div>
+
+  <!-- Header -->
   <header>
+   <div class="header-left">
     <h1 lang="en">Trust Registry Admin</h1>
-    <script src="https://unpkg.com/translate-element/translate-element.js" defer></script>
+   </div>
+   <div class="header-right">
     <div id="tenant-area" hidden>
-      <label for="tenant-select" lang="en">Tenant:</label>
-      <select id="tenant-select">
-        <option value="" lang="en">All tenants</option>
-      </select>
+     <label for="tenant-select" lang="en">Tenant:</label>
+     <select id="tenant-select">
+      <option value="" lang="en">All tenants</option>
+     </select>
     </div>
     <translate-element src="./translations.json"></translate-element>
     <div id="user-info" hidden>
-      <span id="logged-in-as"></span>
-      <button id="logout-btn" type="button" lang="en">Logout</button>
+     <span id="logged-in-as"></span>
+     <button id="logout-btn" type="button" class="btn-ghost" lang="en">Logout</button>
     </div>
+   </div>
   </header>
-  <table>
-    <caption lang="en">Subordinates</caption>
-    <thead>
+
+  <!-- Main content -->
+  <main>
+   <div class="list-header">
+    <h2 lang="en">Subordinates</h2>
+    <button id="add-btn" type="button" class="btn btn-primary">+ <span lang="en">Add subordinate</span></button>
+   </div>
+   <div class="table-card">
+    <table>
+     <caption lang="en">Subordinates</caption>
+     <thead>
       <tr>
-        <th role="columnheader">#</th>
-        <th role="columnheader" lang="en"
-          title="Ogranization name in the OpenID Federation Entity Configuration metadata">Name</th>
-<!--
-        <th role="columnheader" lang="en" title="URL identifying the entity in the federation">Identifier</th>
--->
-        <th role="columnheader" lang="en" title="Entity Configuration published by the entity">Config</th>
-        <th role="columnheader" lang="en" title="Entity Statement published by superior (this service)">Statement</th>
-        <th role="columnheader" lang="en">Edit</th>
-        <th role="columnheader" lang="en">Delete</th>
+       <th role="columnheader">#</th>
+       <th role="columnheader" lang="en"
+         title="Organization name in the OpenID Federation Entity Configuration metadata">Name</th>
+       <th role="columnheader" lang="en" class="col-config"
+         title="Entity Configuration published by the entity">Config</th>
+       <th role="columnheader" lang="en" class="col-stmt"
+         title="Entity Statement published by superior (this service)">Statement</th>
+       <th role="columnheader" lang="en">Edit</th>
+       <th role="columnheader" lang="en">Delete</th>
       </tr>
-    </thead>
-    <tbody id="list">
-    </tbody>
-  </table>
+     </thead>
+     <tbody id="list"></tbody>
+    </table>
+   </div>
+  </main>
+
+  <!-- Drawer overlay -->
+  <div id="drawer-overlay"></div>
+
+  <!-- Add / Edit drawer -->
   <form id="add">
-    <input type="hidden" id="id">
+   <input type="hidden" id="id">
+   <div class="drawer-header">
+    <h2 id="drawer-title" lang="en">Add subordinate</h2>
+    <button type="button" id="close-drawer" aria-label="Close">&#x2715;</button>
+   </div>
+   <div class="drawer-body">
     <fieldset>
-      <legend lang="en">Add subordinate</legend>
-<!--
-      <p><label for="oir4vc" lang="en">From OID4VC</label> <input id="oid4vc" type="url" size="100" placeholder="e.g., openid-credential-offer://... or openid4vp://authorize?..." value=""></p>
--->
-      <p><label for="identifier" lang="en">Identifier</label> <input id="identifier" type="url" size="100"
-          placeholder="https://example.com" pattern="https://.*" value="" required></p>
-      <p><label for="name" lang="en">Name</label> <input id="name" size="100" value=""></p>
-      <p><label for="logo" lang="en">Logo URI</label> <input id="logo" size="100" type="url" value=""></p>
-      <p><label for="homepage" lang="en">Homepage</label> <input id="homepage" type="url" size="100" value=""></p>
-      <p><label for="contact" lang="en">Contacts</label> <input id="contact" size="100" value=""></p>
-      <p><label for="policy" lang="en">Policy URI</label> <input id="policy" size="100" value=""></p>
-      <p><span class="label">Role:</span>
-        <input type="checkbox" id="issuer" name="metadatakey" value="openid_credential_issuer"> <label for="issuer"
-          lang="en" class="inline">Issuer</label>
-        <input type="checkbox" id="verifier" name="metadatakey" value="openid_credential_verifier"> <label
-          for="verifier" lang="en" class="inline">Verifier</label>
-        <input type="checkbox" id="provider" name="metadatakey" value="openid_provider"> <label for="provider" lang="en"
-          class="inline">OP</label>
-        <input type="checkbox" id="rp" name="metadatakey" value="openid_relying_party"> <label for="rp" lang="en"
-          class="inline">RP</label>
-        <input type="checkbox" id="client" name="metadatakey" value="oauth_client"> <label for="client" lang="en"
-          class="inline">Client</label>
-        <input type="checkbox" id="resource" name="metadatakey" value="oauth_resource"> <label for="resource" lang="en"
-          class="inline">Resource</label>
-        <input type="checkbox" id="as" name="metadatakey" value="oauth_authorization_server"> <label for="as" lang="en"
-          class="inline">Authorization Server</label>
-      </p>
-      <p><label for="jwks" lang="en">Keys:</label> <textarea id="jwks" cols="100" rows="12">[]</textarea></p>
-      <p><label for="metadata" lang="en">Metadata:</label> <textarea id="metadata" cols="100" rows="12">{}</textarea>
-      </p>
-      <p><input type="submit" id="submit" value="Add" lang="en"></p>
-      <p><input type="reset" id="cancel" value="Cancel" lang="en"></p>
+     <div class="form-group">
+      <label for="identifier" lang="en">Identifier</label>
+      <input id="identifier" type="url" placeholder="https://example.com" pattern="https://.*" value="" required>
+     </div>
+     <div class="form-group">
+      <label for="name" lang="en">Name</label>
+      <input id="name" type="text" value="">
+     </div>
+     <div class="form-group">
+      <label for="logo" lang="en">Logo URI</label>
+      <input id="logo" type="url" value="">
+     </div>
+     <div class="form-group">
+      <label for="homepage" lang="en">Homepage</label>
+      <input id="homepage" type="url" value="">
+     </div>
+     <div class="form-group">
+      <label for="contact" lang="en">Contacts</label>
+      <input id="contact" type="text" value="">
+     </div>
+     <div class="form-group">
+      <label for="policy" lang="en">Policy URI</label>
+      <input id="policy" type="url" value="">
+     </div>
+     <div class="form-group">
+      <div class="form-label" lang="en">Roles</div>
+      <div class="roles-row">
+       <label class="role-chip-label">
+        <input type="checkbox" id="issuer" name="metadatakey" value="openid_credential_issuer">
+        <span class="role-chip" lang="en">Issuer</span>
+       </label>
+       <label class="role-chip-label">
+        <input type="checkbox" id="verifier" name="metadatakey" value="openid_credential_verifier">
+        <span class="role-chip" lang="en">Verifier</span>
+       </label>
+       <label class="role-chip-label">
+        <input type="checkbox" id="provider" name="metadatakey" value="openid_provider">
+        <span class="role-chip" lang="en">OP</span>
+       </label>
+       <label class="role-chip-label">
+        <input type="checkbox" id="rp" name="metadatakey" value="openid_relying_party">
+        <span class="role-chip" lang="en">RP</span>
+       </label>
+       <label class="role-chip-label">
+        <input type="checkbox" id="client" name="metadatakey" value="oauth_client">
+        <span class="role-chip" lang="en">Client</span>
+       </label>
+       <label class="role-chip-label">
+        <input type="checkbox" id="resource" name="metadatakey" value="oauth_resource">
+        <span class="role-chip" lang="en">Resource</span>
+       </label>
+       <label class="role-chip-label">
+        <input type="checkbox" id="as" name="metadatakey" value="oauth_authorization_server">
+        <span class="role-chip" lang="en">Authorization Server</span>
+       </label>
+      </div>
+     </div>
+     <div class="form-group">
+      <label for="jwks" lang="en">Keys</label>
+      <textarea id="jwks" rows="8">[]</textarea>
+     </div>
+     <div class="form-group">
+      <label for="metadata" lang="en">Metadata</label>
+      <textarea id="metadata" rows="8">{}</textarea>
+     </div>
     </fieldset>
+   </div>
+   <div class="drawer-footer">
+    <button type="submit" id="submit" class="btn btn-primary"><span lang="en">Add</span></button>
+    <button type="button" id="cancel" class="btn btn-outline"><span lang="en">Cancel</span></button>
+   </div>
   </form>
+
   <script>
 
     const metadataMap = {
@@ -120,7 +192,6 @@
       const resp = await fetch('./api/tenants')
       if (!resp.ok) return
       const tenants = await resp.json()
-      // Clear all but the first "All tenants" option
       while (tenantSelect.options.length > 1) tenantSelect.remove(1)
       for (const t of tenants) {
         const opt = document.createElement('option')
@@ -190,14 +261,10 @@
     }
 
     const addForm = document.getElementById('add')
-    const legend = addForm.querySelector('legend')
-    legend.onclick = function (e) {
-      if (!selectedTenant && !isEditing) {
-        alert('Please select a tenant before adding a subordinate.')
-        return
-      }
-      addForm.classList.add('shown')
-    }
+    const addBtn = document.getElementById('add-btn')
+    const overlay = document.getElementById('drawer-overlay')
+    const drawerTitle = document.getElementById('drawer-title')
+    const closeDrawerBtn = document.getElementById('close-drawer')
     const identifier = document.getElementById('identifier')
     const hiddenId = document.getElementById('id')
     const orgName = document.getElementById('name')
@@ -206,43 +273,65 @@
     const contact = document.getElementById('contact')
     const policy = document.getElementById('policy')
     const jwksInput = document.getElementById('jwks')
-    const submit = document.getElementById('submit')
+    const submitBtn = document.getElementById('submit')
     const cancel = document.getElementById('cancel')
+
     updateFederationEntity()
+
+    addBtn.onclick = function () {
+      if (!selectedTenant && !isEditing) {
+       //  alert('Please select a tenant before adding a subordinate.')
+       // return
+      }
+      drawerTitle.textContent = 'Add subordinate'
+      addForm.classList.add('shown')
+      overlay.classList.add('active')
+    }
+
+    function closeDrawer() {
+      addForm.classList.remove('shown')
+      overlay.classList.remove('active')
+      hiddenId.value = ''
+      isEditing = false
+      submitBtn.textContent = 'Add'
+      drawerTitle.textContent = 'Add subordinate'
+      identifier.disabled = false
+      addForm.reset()
+      updateFederationEntity()
+    }
+
+    closeDrawerBtn.onclick = closeDrawer
+    cancel.onclick = closeDrawer
+    overlay.onclick = function (e) {
+      if (e.target === overlay) closeDrawer()
+    }
+
     identifier.onchange = async function (e) {
       const confUrl = `./api/proxy/${encodeURIComponent(this.value.replace(/\/$/, '') + '/.well-known/openid-federation')}`
-      // console.log(confUrl)
       try {
         const confResp = await fetch(confUrl, {headers: {Accept: 'application/json'}})
         if (confResp.ok) {
-          const stmt = await confResp.text()
-          const data = parseJwt(stmt)
-          if (data.jwks) {
-            updateJWKS(data.jwks.keys)
-          }
+          const data = parseJwt(await confResp.text())
+          if (data.jwks) updateJWKS(data.jwks.keys)
           if (data.metadata) {
-            for (const key in data.metadata) {
-              setMetadata(key, data.metadata[key])
-            }
+            for (const key in data.metadata) setMetadata(key, data.metadata[key])
           }
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.warn(e)
       }
     }
+
     orgName.onchange = logo.onchange = homepage.onchange = contact.onchange = policy.onchange = updateFederationEntity
+
     const boxes = addForm.querySelectorAll('input[name="metadatakey"]')
     for (const box of boxes) {
       box.onchange = async function (e) {
         if (this.checked) {
-          // console.log(this.value, metadataMap[this.value])
           const url = `./api/getmetadata/${encodeURIComponent(metadataMap[this.value])}/${encodeURIComponent(this.form.identifier.value)}`
           const resp = await fetch(url)
-          // console.log(resp.status, url)
           if (resp.ok) {
             const json = await resp.json()
-            // console.log(json)
             setMetadata(this.value, json)
             if (json.jwks_uri) {
               const jwksResp = await fetch(`./api/proxy/${encodeURIComponent(json.jwks_uri)}`, {headers: {Accept: 'application/json'}})
@@ -257,24 +346,24 @@
         }
       }
     }
+
     function updateFederationEntity() {
-      let entity = {
+      setMetadata('federation_entity', {
         organization_name: orgName.value || '',
         logo_uri: logo.value || '',
         homepage_uri: homepage.value || '',
         contacts: contact.value.replace(/,\s+/, ',').split(',') || '',
         policy_uri: policy.value || ''
-      }
-      setMetadata('federation_entity', entity)
+      })
     }
+
     function setMetadata(key, value) {
-      if (!addForm.metadata.value) {
-        addForm.metadata.value = '{}\n'
-      }
+      if (!addForm.metadata.value) addForm.metadata.value = '{}\n'
       const currentMetadata = JSON.parse(addForm.metadata.value)
       currentMetadata[key] = value
       addForm.metadata.value = JSON.stringify(currentMetadata, null, 2) + '\n'
     }
+
     function deleteMetadata(key) {
       try {
         const currentMetadata = JSON.parse(addForm.metadata.value)
@@ -286,44 +375,34 @@
         console.error(e)
       }
     }
+
     function updateJWKS(jwks) {
       const keys = JSON.parse(jwksInput.value) || []
       for (const key of jwks) {
         const existingKey = keys.findIndex((elem) => elem.kid === key.kid)
-        if (existingKey >= 0) {
-          keys[existingKey] = key
-        }
-        else {
-          keys.push(key)
-        }
+        if (existingKey >= 0) keys[existingKey] = key
+        else keys.push(key)
       }
       jwksInput.value = JSON.stringify(keys, null, 2) + '\n'
     }
-    function parseJwt(token) {
-      var base64Str = token.split('.')[1];
-      var base64 = base64Str.replace(/-/g, '+').replace(/_/g, '/');
-      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
 
-      return JSON.parse(jsonPayload);
+    function parseJwt(token) {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+      return JSON.parse(decodeURIComponent(window.atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      }).join('')))
     }
 
     addForm.onsubmit = async function (e) {
       e.preventDefault()
       const roles = {}
-      const boxes = addForm.querySelectorAll('input[name="metadatakey"]')
-      for (const box of boxes) {
-        if (box.checked) {
-          roles[box.id] = box.value
-        }
+      for (const box of addForm.querySelectorAll('input[name="metadatakey"]')) {
+        if (box.checked) roles[box.id] = box.value
       }
       let addUrl = './api/subordinates'
       const params = {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           identifier: this.identifier.value,
           roles: roles,
@@ -331,7 +410,6 @@
           metadata: JSON.parse(this.metadata.value)
         })
       }
-      // console.log(JSON.stringify(params, null, 1))
       if (hiddenId.value) {
         addUrl += '/' + hiddenId.value
         params.method = 'PUT'
@@ -340,31 +418,20 @@
         body.tenant = selectedTenant
         params.body = JSON.stringify(body)
       }
-      // console.log(addUrl, params)
       try {
         const resp = await fetch(addUrl, params)
         if (resp.ok) {
-          const json = await resp.json()
-          console.log(json)
-          hiddenId.value = ''
-          isEditing = false
-          identifier.value = orgName.value = logo.value = homepage.value = contact.value = policy.value = metadata.value = ''
-          identifier.disabled = false
-          addForm.classList.remove('shown')
+          console.log(await resp.json(), null, 1)
+          closeDrawer()
           getList()
         }
       } catch (e) {
         console.error(e)
       }
     }
-    cancel.onclick = function (e) {
-      hiddenId.value = ''
-      isEditing = false
-      addForm.classList.remove('shown')
-      submit.value = 'Add'
-      identifier.disabled = false
-    }
+
     const list = document.getElementById('list')
+
     function getList() {
       const subordinatesUrl = selectedTenant
         ? `./api/subordinates?tenant=${encodeURIComponent(selectedTenant)}`
@@ -373,7 +440,6 @@
         .then(resp => { if (resp.status === 401) { showLogin(); return null } return resp.json() })
         .then(async json => {
           if (!json) return
-          // console.log(json)
           list.innerHTML = ''
           let counter = 0
           for (const subordinate of json) {
@@ -381,21 +447,18 @@
             let meta = {}
             const stmtUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
             const resp = await fetch(stmtUrl)
-            // console.log(resp.status, stmtUrl)
-            if (resp.ok) {
-              meta = await resp.json()
-            }
-            tr.ondblclick = async function (e) {
-              console.log(meta)
-            }
+            if (resp.ok) meta = await resp.json()
+
             const subName = subordinate?.metadata?.federation_entity?.organization_name || subordinate.identifier
             list.appendChild(tr)
+
             const id = document.createElement('th')
             id.setAttribute('role', 'rowheader')
             id.className = 'id'
             id.title = subordinate.id
             id.textContent = ++counter
             tr.appendChild(id)
+
             const n = document.createElement('td')
             n.className = 'name'
             const a = document.createElement('a')
@@ -403,57 +466,49 @@
             a.textContent = subName
             n.appendChild(a)
             tr.appendChild(n)
-            /*
-                      const td = document.createElement('td')
-                      tr.appendChild(td)
-                      td.className = 'identifier'
-                      let a = document.createElement('a')
-                      a.href = subordinate.identifier
-                      a.textContent = subordinate.identifier
-                      td.appendChild(a)
-            */
+
             const conf = document.createElement('td')
-            tr.appendChild(conf)
             conf.className = 'config'
             const ca = document.createElement('a')
-            conf.appendChild(ca)
-            // ca.href = './api/configuration/' + encodeURIComponent(subName)
             ca.href = './api/configuration/' + encodeURIComponent(subordinate.identifier)
             ca.lang = 'en'
             ca.textContent = 'get'
+            conf.appendChild(ca)
             const ta = document.createElement('a')
-            conf.appendChild(document.createTextNode(' '))
-            conf.appendChild(ta)
             ta.href = subordinate.identifier.replace(/\/$/, '') + '/.well-known/openid-federation'
             ta.lang = 'en'
-            ta.textContent = '(target)'
+            ta.textContent = 'target'
+            conf.appendChild(document.createTextNode(' '))
+            conf.appendChild(ta)
+            tr.appendChild(conf)
+
             const stmt = document.createElement('td')
-            tr.appendChild(stmt)
             stmt.className = 'statement'
-            // console.log(meta)
             if (meta && meta.source_endpoint) {
-              if (!meta.source_endpoint.startsWith('http')) {
-                meta.source_endpoint = 'https://' + meta.source_endpoint
-              }
+              if (!meta.source_endpoint.startsWith('http')) meta.source_endpoint = 'https://' + meta.source_endpoint
               const ma = document.createElement('a')
               ma.href = `${meta.source_endpoint}?sub=${encodeURIComponent(subordinate.identifier)}`
               ma.textContent = 'fetch'
               ma.lang = 'en'
               stmt.appendChild(ma)
             }
+            tr.appendChild(stmt)
+
             const mod = document.createElement('td')
-            tr.appendChild(mod)
             mod.className = 'modify'
-            const ea = document.createElement('a')
-            ea.textContent = '✎'
+            const ea = document.createElement('button')
+            ea.type = 'button'
+            ea.textContent = 'Edit'
             ea.lang = 'en'
-            ea.title = 'Edit'
+            ea.className = 'btn-icon edit'
             ea.onclick = async function (e) {
               e.preventDefault()
               isEditing = true
               addForm.reset()
-              submit.value = 'Edit' // not translated!
+              submitBtn.textContent = 'Edit'
+              drawerTitle.textContent = 'Edit subordinate'
               addForm.classList.add('shown')
+              overlay.classList.add('active')
               hiddenId.value = subordinate.id
               identifier.value = subordinate.identifier
               identifier.disabled = true
@@ -465,40 +520,39 @@
               if (subordinate?.metadata?.roles) {
                 for (const roleId in subordinate.metadata.roles) {
                   const box = document.getElementById(roleId)
-                  if (box) {
-                    box.checked = true
-                  }
+                  if (box) box.checked = true
                 }
-                delete (subordinate.metadata.roles)
+                delete subordinate.metadata.roles
               }
               updateJWKS(subordinate.jwks)
               addForm.metadata.value = JSON.stringify(subordinate.metadata, null, 2) + '\n'
             }
             mod.appendChild(ea)
+            tr.appendChild(mod)
+
             const del = document.createElement('td')
-            tr.appendChild(del)
             del.className = 'delete'
-            const da = document.createElement('a')
+            const da = document.createElement('button')
+            da.type = 'button'
+            da.textContent = 'Delete'
             da.lang = 'en'
-            da.title = 'Delete'
-            da.textContent = '❌'
+            da.className = 'btn-icon delete'
             da.onclick = function (e) {
               e.preventDefault()
-              const deleteUrl = `./api/subordinates/${encodeURIComponent(subordinate.id)}`
-              if (!confirm(`Delete subordinate ${subordinate.id}?`)) {
-                return
-              }
-              fetch(deleteUrl, { method: 'DELETE' })
-                .then(resp => resp.json())
-                .then(json => {
-                  console.log(json)
+              if (!confirm(`Delete subordinate ${subordinate.id}?`)) return
+              fetch(`./api/subordinates/${encodeURIComponent(subordinate.id)}`, {method: 'DELETE'})
+                .then(async resp => { console.log(await resp.json(), null, 1) } )
+                .then(() => { 
                   list.removeChild(tr)
+                  loadTenants()
                 })
             }
             del.appendChild(da)
+            tr.appendChild(del)
           }
         })
     }
+
     checkAuth()
   </script>
  </body>
