@@ -315,6 +315,14 @@
           if (data.jwks) updateJWKS(data.jwks.keys)
           if (data.metadata) {
             for (const key in data.metadata) setMetadata(key, data.metadata[key])
+            const fedEntity = data.metadata.federation_entity
+            if (fedEntity) {
+              orgName.value = orgName.value || fedEntity.organization_name || ''
+              logo.value = logo.value || fedEntity.logo_uri || ''
+              homepage.value = homepage.value || fedEntity.homepage_uri || ''
+              contact.value = contact.value || fedEntity.contacts?.join(', ') || ''
+              policy.value = policy.value || fedEntity.policy_uri || ''
+            }
           }
         }
       } catch (e) {
